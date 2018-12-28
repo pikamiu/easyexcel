@@ -87,7 +87,7 @@ public class ExcelWriter {
      * @param sheet Write to this sheet
      * @return this current writer
      */
-    public ExcelWriter write(List<? extends BaseRowModel> data, Sheet sheet) {
+    public ExcelWriter writeBean(List<? extends BaseRowModel> data, Sheet sheet) {
         excelBuilder.addContent(data, sheet);
         return this;
     }
@@ -101,9 +101,9 @@ public class ExcelWriter {
     @Deprecated
     public ExcelWriter write(List data) {
         if (objectClass != null) {
-            return this.write(data,new Sheet(1,0,objectClass));
+            return this.writeBean(data,new Sheet(1,0,objectClass));
         }else {
-            return this.write0(data,new Sheet(1,0,objectClass));
+            return this.writeString(data,new Sheet(1,0,objectClass));
 
         }
     }
@@ -115,10 +115,26 @@ public class ExcelWriter {
      * @param sheet Write to this sheet
      * @return this
      */
-    public ExcelWriter write1(List<List<Object>> data, Sheet sheet) {
+    public ExcelWriter writeObject(List<List<Object>> data, Sheet sheet) {
         excelBuilder.addContent(data, sheet);
         return this;
     }
+
+
+    /**
+     * Write data to a sheet, main use to write json data
+     * @param data Data to be written
+     * @param sheet Write to this sheet
+     * @return this
+     */
+    public ExcelWriter writeJson(List<String> data, Sheet sheet) {
+        if (data.size() <= 0)
+            throw new IllegalArgumentException("write json size can't empty");
+        excelBuilder.addHead(data.get(0), sheet);
+        excelBuilder.addContent(data, sheet);
+        return this;
+    }
+
 
     /**
      * Write data to a sheet
@@ -126,7 +142,7 @@ public class ExcelWriter {
      * @param sheet Write to this sheet
      * @return this
      */
-    public ExcelWriter write0(List<List<String>> data, Sheet sheet) {
+    public ExcelWriter writeString(List<List<String>> data, Sheet sheet) {
         excelBuilder.addContent(data, sheet);
         return this;
     }
@@ -138,7 +154,7 @@ public class ExcelWriter {
      * @param table Write to this table
      * @return this
      */
-    public ExcelWriter write(List<? extends BaseRowModel> data, Sheet sheet, Table table) {
+    public ExcelWriter writeBean(List<? extends BaseRowModel> data, Sheet sheet, Table table) {
         excelBuilder.addContent(data, sheet, table);
         return this;
     }
@@ -150,7 +166,7 @@ public class ExcelWriter {
      * @param table Write to this table
      * @return this
      */
-    public ExcelWriter write0(List<List<String>> data, Sheet sheet, Table table) {
+    public ExcelWriter writeString(List<List<String>> data, Sheet sheet, Table table) {
         excelBuilder.addContent(data, sheet, table);
         return this;
     }
@@ -175,7 +191,7 @@ public class ExcelWriter {
      * @param table Write to this table
      * @return
      */
-    public ExcelWriter write1(List<List<Object>> data, Sheet sheet, Table table) {
+    public ExcelWriter writeObject(List<List<Object>> data, Sheet sheet, Table table) {
         excelBuilder.addContent(data, sheet, table);
         return this;
     }

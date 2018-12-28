@@ -36,6 +36,14 @@ public interface ExcelBuilder {
     void addContent(List data, Sheet sheetParam, Table table);
 
     /**
+     * create excel head, main use to write json data head
+     *
+     * @param object java object
+     * @param sheetParam Write the sheet
+     */
+    void addHead(Object object, Sheet sheetParam);
+
+    /**
      * Creates new cell range. Indexes are zero-based.
      *
      * @param firstRow Index of first row

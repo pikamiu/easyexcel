@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 /**
  * @author jipengfei
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface ExcelProperty {
@@ -33,4 +33,9 @@ public @interface ExcelProperty {
       * @return
       */
      String format() default "";
+
+     /**
+      * Whether to ignore
+      */
+     boolean ignore() default false;
 }

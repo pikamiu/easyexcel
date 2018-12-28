@@ -6,6 +6,7 @@ import com.alibaba.excel.metadata.ExcelHeadProperty;
 import com.alibaba.excel.metadata.Table;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.util.CollectionUtils;
+import com.alibaba.excel.util.ListUtil;
 import com.alibaba.excel.util.StyleUtil;
 import com.alibaba.excel.util.WorkBookUtil;
 import org.apache.poi.ss.usermodel.*;
@@ -68,9 +69,14 @@ public class WriteContext {
     private Map<Integer, Table> tableMap = new ConcurrentHashMap<Integer, Table>();
 
     /**
-     * Cell default style
+     * Cell default head style
      */
-    private CellStyle defaultCellStyle;
+    private CellStyle defaultHeadCellStyle;
+
+    /**
+     * Cell default content style
+     */
+    private CellStyle defaultContentCellStyle;
 
     /**
      * Current table head  style
@@ -101,7 +107,8 @@ public class WriteContext {
         this.outputStream = out;
         this.afterWriteHandler = afterWriteHandler;
         this.workbook = WorkBookUtil.createWorkBook(templateInputStream, excelType);
-        this.defaultCellStyle = StyleUtil.buildDefaultCellStyle(this.workbook);
+        this.defaultHeadCellStyle = StyleUtil.buildDefaultHeadCellStyle(this.workbook);
+        this.defaultContentCellStyle = StyleUtil.buildDefaultContentCellStyle(this.workbook);
 
     }
 
@@ -130,7 +137,7 @@ public class WriteContext {
     private void initCurrentSheet(com.alibaba.excel.metadata.Sheet sheet) {
 
         /** **/
-        initExcelHeadProperty(sheet.getHead(), sheet.getClazz());
+        initExcelHeadProperty(getHead(sheet), sheet.getClazz());
 
         initTableStyle(sheet.getTableStyle());
 
@@ -225,6 +232,10 @@ public class WriteContext {
 
     }
 
+    private List<List<String>> getHead(com.alibaba.excel.metadata.Sheet sheet) {
+        return sheet.getHead() != null ? sheet.getHead() : ListUtil.listWarp(sheet.getSingleHead());
+    }
+
     public ExcelHeadProperty getExcelHeadProperty() {
         return this.excelHeadProperty;
     }
@@ -262,11 +273,11 @@ public class WriteContext {
     }
 
     public CellStyle getCurrentHeadCellStyle() {
-        return this.currentHeadCellStyle == null ? defaultCellStyle : this.currentHeadCellStyle;
+        return this.currentHeadCellStyle == null ? defaultHeadCellStyle : this.currentHeadCellStyle;
     }
 
     public CellStyle getCurrentContentStyle() {
-        return this.currentContentCellStyle;
+        return this.currentContentCellStyle == null? defaultContentCellStyle : this.currentContentCellStyle;
     }
 
     public Workbook getWorkbook() {

@@ -1,8 +1,11 @@
 package com.alibaba.easyexcel.test.util;
 
 import com.alibaba.easyexcel.test.model.WriteModel;
+import com.alibaba.easyexcel.test.model.WriteModel2;
 import com.alibaba.excel.metadata.Font;
 import com.alibaba.excel.metadata.TableStyle;
+import com.alibaba.fastjson.JSONObject;
+
 import org.apache.poi.ss.usermodel.IndexedColors;
 
 import java.math.BigDecimal;
@@ -26,6 +29,25 @@ public class DataUtil {
             da.add(new BigDecimal("3434343433554545"+i));
             da.add(Short.valueOf((short)i));
             object.add(da);
+        }
+        return object;
+    }
+
+    public static List<String> createTestJsonString() {
+        List<String> object = new ArrayList<String>();
+        for (int i = 0; i < 1000; i++) {
+            WriteModel model1 = new WriteModel();
+            model1.setP1("第一列，第行");
+            model1.setP2("121212jjj");
+            model1.setP3(33+i);
+            model1.setP4(44);
+            model1.setP5("555");
+            model1.setP6(666.2f);
+            model1.setP7(new BigDecimal("454545656343434"+i));
+            model1.setP8(new Date());
+            model1.setP9("llll9999>&&&&&6666^^^^");
+            model1.setP10(1111.77+i);
+            object.add(JSONObject.toJSONString(model1));
         }
         return object;
     }
@@ -73,6 +95,26 @@ public class DataUtil {
         return model1s;
     }
 
+
+    public static List<WriteModel2> createTestListJavaMode2(){
+        List<WriteModel2> model1s = new ArrayList<WriteModel2>();
+        for (int i = 0; i <10000 ; i++) {
+            WriteModel2 model1 = new WriteModel2();
+            model1.setP1("第一列，第行");
+            model1.setP2("121212jjj");
+            model1.setP3(33+i);
+            model1.setP4(44);
+            model1.setP5("555");
+            model1.setP6(666.2f);
+            model1.setP7(new BigDecimal("454545656343434"+i));
+            model1.setP8(new Date());
+            model1.setP9("llll9999>&&&&&6666^^^^");
+            model1.setP10(1111.77+i);
+            model1s.add(model1);
+        }
+        return model1s;
+    }
+
     public static TableStyle createTableStyle() {
         TableStyle tableStyle = new TableStyle();
         Font headFont = new Font();
@@ -88,6 +130,26 @@ public class DataUtil {
         contentFont.setFontName("黑体");
         tableStyle.setTableContentFont(contentFont);
         tableStyle.setTableContentBackGroundColor(IndexedColors.GREEN);
+        return tableStyle;
+    }
+
+    public static TableStyle createPITableStyle() {
+        TableStyle tableStyle = new TableStyle();
+        Font headFont = new Font();
+        headFont.setBold(false);
+        headFont.setFontName("宋体");
+        headFont.setFontHeightInPoints((short) 11);
+        tableStyle.setTableHeadFont(headFont);
+        tableStyle.setTableHeadBackGroundColor(IndexedColors.PALE_BLUE);
+
+
+        Font contentFont = new Font();
+        contentFont.setBold(false);
+        contentFont.setFontHeightInPoints((short)11);
+        contentFont.setFontName("宋体");
+        tableStyle.setTableContentFont(contentFont);
+        tableStyle.setTableContentBackGroundColor(IndexedColors.WHITE1);
+
         return tableStyle;
     }
 }

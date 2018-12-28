@@ -44,6 +44,8 @@ public class ExcelHeadProperty {
      */
     private void initColumnProperties() {
         if (this.headClazz != null) {
+            boolean globalAnnotation = initClassTypeAnnotation();
+
             List<Field> fieldList = new ArrayList<Field>();
             Class tempClass = this.headClazz;
             //When the parent class is null, it indicates that the parent class (Object class) has reached the top
@@ -51,11 +53,18 @@ public class ExcelHeadProperty {
             while (tempClass != null) {
                 fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
                 //Get the parent class and give it to yourself
-                tempClass = tempClass.getSuperclass();
+               if (!globalAnnotation)
+                   tempClass = tempClass.getSuperclass();
+               else
+                   tempClass = null;
             }
             List<List<String>> headList = new ArrayList<List<String>>();
-            for (Field f : fieldList) {
-                initOneColumnProperty(f);
+            fieldList = removeIgnore(fieldList);
+            for (int i = 0; i < fieldList.size(); i++) {
+                if (globalAnnotation)
+                    initOneColumnPropertyWithType(fieldList.get(i), i);
+                else
+                    initOneColumnProperty(fieldList.get(i));
             }
             //对列排序
             Collections.sort(columnPropertyList);
@@ -66,6 +75,43 @@ public class ExcelHeadProperty {
                 this.head = headList;
             }
         }
+    }
+
+    private boolean initClassTypeAnnotation() {
+        return headClazz.getAnnotation(ExcelProperty.class) != null;
+    }
+
+    private List<Field> removeIgnore(List<Field> fields) {
+        Iterator<Field> it = fields.iterator();
+        while (it.hasNext()) {
+            ExcelProperty p = it.next().getAnnotation(ExcelProperty.class);
+            if (p != null && p.ignore())
+                it.remove();
+        }
+        return fields;
+    }
+
+    private void initOneColumnPropertyWithType(Field f, Integer indexSelf) {
+        ExcelProperty p = f.getAnnotation(ExcelProperty.class);
+        ExcelColumnProperty excelHeadProperty;
+        if (p != null) {
+            if (p.ignore()) return;
+            excelHeadProperty = new ExcelColumnProperty();
+            List<String> head = p.value().length != 0 ? Arrays.asList(p.value()) : Collections.singletonList(f.getName());
+            excelHeadProperty.setField(f);
+            excelHeadProperty.setHead(head);
+            excelHeadProperty.setIndex(indexSelf);
+            excelHeadProperty.setFormat(p.format());
+            excelColumnPropertyMap1.put(indexSelf, excelHeadProperty);
+        } else {
+            excelHeadProperty = new ExcelColumnProperty();
+            excelHeadProperty.setField(f);
+            excelHeadProperty.setHead(Collections.singletonList(f.getName()));
+            excelHeadProperty.setIndex(indexSelf);
+            excelHeadProperty.setFormat("");
+            excelColumnPropertyMap1.put(indexSelf, excelHeadProperty);
+        }
+        this.columnPropertyList.add(excelHeadProperty);
     }
 
     /**

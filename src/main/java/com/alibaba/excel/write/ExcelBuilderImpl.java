@@ -9,10 +9,16 @@ import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.metadata.Table;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.util.CollectionUtils;
+import com.alibaba.excel.util.JSONUtil;
+import com.alibaba.excel.util.ListUtil;
 import com.alibaba.excel.util.POITempFile;
 import com.alibaba.excel.util.TypeUtil;
 import com.alibaba.excel.util.WorkBookUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+
 import net.sf.cglib.beans.BeanMap;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+
 
 /**
  * @author jipengfei
@@ -80,6 +87,13 @@ public class ExcelBuilderImpl implements ExcelBuilder {
     }
 
     @Override
+    public void addHead(Object object, Sheet sheetParam) {
+        if (object instanceof String) {
+            addJsonHead((String) object, sheetParam);
+        }
+    }
+
+    @Override
     public void merge(int firstRow, int lastRow, int firstCol, int lastCol) {
         CellRangeAddress cra = new CellRangeAddress(firstRow, lastRow, firstCol, lastCol);
         context.getCurrentSheet().addMergedRegion(cra);
@@ -103,6 +117,29 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             Object cellValue = oneRowData.get(i);
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
                 TypeUtil.isNum(cellValue));
+            if (null != context.getAfterWriteHandler()) {
+                context.getAfterWriteHandler().cell(i, cell);
+            }
+        }
+    }
+
+    private void addJsonHead(String str, Sheet sheetParam) {
+        if (sheetParam.getHead() == null && sheetParam.getSingleHead() == null) {
+            List<List<String>> jsonHead = ListUtil.listWarp(JSONUtil.jsonParse(str));
+            sheetParam.setHead(jsonHead);
+        }
+    }
+
+    private void addJsonToExcel(Object oneRowData, Row row) {
+        if (oneRowData == null) {
+            return;
+        }
+        List<List<String>> heads = context.getExcelHeadProperty().getHead();
+        for (int i = 0; i < heads.size(); i++) {
+            JSONObject json = JSON.parseObject(String.valueOf(oneRowData));
+            Object cellValue = json.get(heads.get(i).get(0));
+            Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
+                    TypeUtil.isNum(cellValue));
             if (null != context.getAfterWriteHandler()) {
                 context.getAfterWriteHandler().cell(i, cell);
             }
@@ -134,7 +171,9 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             context.getAfterWriteHandler().row(n, row);
         }
         if (oneRowData instanceof List) {
-            addBasicTypeToExcel((List)oneRowData, row);
+            addBasicTypeToExcel((List) oneRowData, row);
+        } else if (oneRowData instanceof String) {
+            addJsonToExcel(oneRowData, row);
         } else {
             addJavaObjectToExcel(oneRowData, row);
         }

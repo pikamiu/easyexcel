@@ -31,6 +31,9 @@ public class Sheet {
      */
     private List<List<String>> head;
 
+
+    private List<String> singleHead;
+
     /**
      *
      */
@@ -61,6 +64,12 @@ public class Sheet {
         this.headLineMun = headLineMun;
     }
 
+    public Sheet (int sheetNo, int headLineMun, List<List<String>> head) {
+        this.sheetNo = sheetNo;
+        this.headLineMun = headLineMun;
+        this.head = head;
+    }
+
     public Sheet(int sheetNo, int headLineMun, Class<? extends BaseRowModel> clazz) {
         this.sheetNo = sheetNo;
         this.headLineMun = headLineMun;
@@ -82,6 +91,14 @@ public class Sheet {
 
     public void setHead(List<List<String>> head) {
         this.head = head;
+    }
+
+    public List<String> getSingleHead() {
+        return singleHead;
+    }
+
+    public void setSingleHead(List<String> singleHead) {
+        this.singleHead = singleHead;
     }
 
     public Class<? extends BaseRowModel> getClazz() {
@@ -145,6 +162,7 @@ public class Sheet {
             ", sheetName='" + sheetName + '\'' +
             ", clazz=" + clazz +
             ", head=" + head +
+                ", singleHead=" + singleHead +
             ", tableStyle=" + tableStyle +
             ", columnWidthMap=" + columnWidthMap +
             '}';
@@ -165,4 +183,71 @@ public class Sheet {
     public void setStartRow(int startRow) {
         this.startRow = startRow;
     }
+
+    private Sheet(Builder builder) {
+        this.headLineMun = builder.headLineMun;
+        this.sheetNo = builder.sheetNo;
+        this.sheetName = builder.sheetName;
+        this.clazz = builder.clazz;
+        this.head = builder.head;
+        this.tableStyle = builder.tableStyle;
+        this.columnWidthMap = builder.columnWidthMap;
+        this.autoWidth = builder.autoWidth;
+        this.startRow = builder.startRow;
+    }
+
+    public static class Builder implements Builders<Sheet> {
+        private int headLineMun = 0;
+        private int sheetNo = 1;
+        private String sheetName;
+        private Class<? extends BaseRowModel> clazz;
+        private List<List<String>> head;
+        private TableStyle tableStyle;
+        private Map<Integer,Integer> columnWidthMap = new HashMap<Integer, Integer>();
+        private Boolean autoWidth = Boolean.FALSE;
+        private int startRow = 0;
+
+        public Builder sheetNo(int val) {
+            sheetNo = val;
+            return this;
+        }
+        public Builder headLineMun(int val) {
+            headLineMun = val;
+            return this;
+        }
+        public Builder sheetName(String val) {
+            sheetName = val;
+            return this;
+        }
+        public Builder clazz(Class<? extends BaseRowModel> val) {
+            clazz = val;
+            return this;
+        }
+        public Builder head(List<List<String>> val) {
+            head = val;
+            return this;
+        }
+        public Builder tableStyle(TableStyle val) {
+            tableStyle = val;
+            return this;
+        }
+        public Builder columnWidthMap(Map<Integer,Integer> val) {
+            columnWidthMap = val;
+            return this;
+        }
+        public Builder autoWidth(boolean val) {
+            autoWidth = val;
+            return this;
+        }
+        public Builder startRow(int val) {
+            startRow = val;
+            return this;
+        }
+
+        @Override
+        public Sheet build() {
+            return new Sheet(this);
+        }
+    }
+
 }

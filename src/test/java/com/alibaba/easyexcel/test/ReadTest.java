@@ -3,6 +3,8 @@ package com.alibaba.easyexcel.test;
 import com.alibaba.easyexcel.test.listen.ExcelListener;
 import com.alibaba.easyexcel.test.model.ReadModel;
 import com.alibaba.easyexcel.test.model.ReadModel2;
+import com.alibaba.easyexcel.test.model.ReadModel3;
+import com.alibaba.easyexcel.test.model.WriteModel2;
 import com.alibaba.easyexcel.test.util.FileUtil;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.ExcelReader;
@@ -39,6 +41,19 @@ public class ReadTest {
     public void simpleReadJavaModelV2007() throws IOException {
         InputStream inputStream = FileUtil.getResourcesFileInputStream("2007.xlsx");
         List<Object> data = EasyExcelFactory.read(inputStream, new Sheet(2, 1, ReadModel.class));
+        inputStream.close();
+        print(data);
+    }
+
+    /**
+     * 07版本excel读数据量少于1千行数据自动转成javamodel，内部采用回调方法.
+     *
+     * @throws IOException 简单抛出异常，真实环境需要catch异常,同时在finally中关闭流
+     */
+    @Test
+    public void simpleReadJavaModel3V2007() throws IOException {
+        InputStream inputStream = FileUtil.getResourcesFileInputStream("2007.xlsx");
+        List<Object> data = EasyExcelFactory.read(inputStream, new Sheet(2, 1, ReadModel3.class));
         inputStream.close();
         print(data);
     }

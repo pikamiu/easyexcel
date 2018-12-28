@@ -1,38 +1,41 @@
 package com.alibaba.easyexcel.test.model;
 
-import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.metadata.BaseRowModel;
-import com.alibaba.fastjson.annotation.JSONField;
-
 import java.math.BigDecimal;
 import java.util.Date;
-public class WriteModel extends BaseWriteModel {
 
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.metadata.BaseRowModel;
 
+/**
+ * <p>简要说明...</p>
+ *
+ * @author wujiaming
+ * @version 1.0
+ * @since 2018/12/26 16:17
+ */
+@ExcelProperty()
+public class WriteModel2 extends BaseRowModel {
 
-    @ExcelProperty(value = {"表头3","表头3","表头3"},index = 2)
+    @ExcelProperty(value = {"account"})
+    private String p1;
+
+    @ExcelProperty(ignore = true)
+    private String p2;
+
     private int p3;
 
-    @ExcelProperty(value = {"表头1","表头4","表头4"},index = 3)
     private long p4;
 
-    @ExcelProperty(value = {"表头5","表头51","表头52"},index = 4)
     private String p5;
 
-    @ExcelProperty(value = {"表头6","表头61","表头611"},index = 5)
     private float p6;
 
-    @ExcelProperty(value = {"表头6","表头61","表头612"},index = 6)
     private BigDecimal p7;
 
-    @ExcelProperty(value = {"表头6","表头62","表头621"},index = 7)
     private Date p8;
 
-    @ExcelProperty(value = {"表头6","表头62","表头622"},index = 8)
     private String p9;
 
-    @JSONField(serialize = false)
-    @ExcelProperty(value = {"表头6","表头62","表头622"},index = 9)
     private double p10;
 
     public String getP1() {
@@ -113,21 +116,5 @@ public class WriteModel extends BaseWriteModel {
 
     public void setP10(double p10) {
         this.p10 = p10;
-    }
-
-    @Override
-    public String toString() {
-        return "JavaModel1{" +
-            "p1='" + p1 + '\'' +
-            ", p2='" + p2 + '\'' +
-            ", p3=" + p3 +
-            ", p4=" + p4 +
-            ", p5='" + p5 + '\'' +
-            ", p6=" + p6 +
-            ", p7=" + p7 +
-            ", p8=" + p8 +
-            ", p9='" + p9 + '\'' +
-            ", p10=" + p10 +
-            '}';
     }
 }
