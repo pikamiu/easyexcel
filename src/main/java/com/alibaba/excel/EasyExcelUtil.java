@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.fastjson.JSON;
@@ -24,16 +25,49 @@ import com.alibaba.fastjson.parser.Feature;
  */
 public class EasyExcelUtil {
 
+    /**
+     * According to the path read excel
+     * default sheetNumber 1 and headLineMun 0
+     *
+     * @param path the file path
+     * @return data result
+     */
     public static List<List<String>> read(String path) {
         List<List<String>> lists = new ArrayList<List<String>>();
         try {
-            lists = read(getFileInputStream(path), 1, 0);
+            lists = read(getFileInputStream(path), 1, 1);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
         return lists;
     }
 
+    /**
+     * read excel
+     *
+     * @param path        file path
+     * @param sheetNo     sheetNumber
+     * @param headLineMun headLineNumber
+     * @return data result
+     */
+    public static List<List<String>> read(String path, int sheetNo, int headLineMun) {
+        List<List<String>> lists = new ArrayList<List<String>>();
+        try {
+            lists = read(getFileInputStream(path), sheetNo, headLineMun);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return lists;
+    }
+
+    /**
+     * read excel
+     *
+     * @param in          stream
+     * @param sheetNo     sheetNumber
+     * @param headLineMun headLineNumber it's use to judge context start line
+     * @return data result
+     */
     public static List<List<String>> read(InputStream in, int sheetNo, int headLineMun) {
         List<List<String>> lists = new ArrayList<List<String>>();
         try {
@@ -52,16 +86,54 @@ public class EasyExcelUtil {
         return lists;
     }
 
+    /**
+     * read excel by java bean, the bean must extend BaseRowModel, This is a tag interface.
+     * you can use ExcelProperty annotation design the java bean
+     * default sheetNumber 1, headLineMun 1,
+     *
+     * @param path   file path
+     * @param tClass java bean what extend the BaseRowModel
+     * @param <T>    T
+     * @return list<bean>
+     * @throws FileNotFoundException Make sure that file exist
+     * @see com.alibaba.excel.annotation.ExcelProperty
+     */
     public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass) throws FileNotFoundException {
-        return read(getFileInputStream(path), 1, 1, tClass);
+        return read(getFileInputStream(path), tClass, 1, 1);
     }
 
-    public static <T> List<T> read(String path, int sheetNo, int headLineMun, Class<? extends BaseRowModel> tClass) throws FileNotFoundException {
-        return read(getFileInputStream(path), sheetNo, headLineMun, tClass);
+    /**
+     * read excel by java bean, the bean must extend BaseRowModel, This is a tag interface.
+     * you can use ExcelProperty annotation design the java bean
+     * <p>
+     * Please note that the headLineMun must greater than the head line count,because the head dataType maybe different
+     * to context data type, It may throw ClassCastException.
+     *
+     * @param path        file path
+     * @param tClass      java bean what extend the BaseRowModel
+     * @param sheetNo     sheetNumber
+     * @param headLineMun headLineNumber it's use to judge context start line
+     * @param <T>         T
+     * @return list<bean>
+     * @throws FileNotFoundException Make sure that file exist
+     * @see com.alibaba.excel.annotation.ExcelProperty
+     */
+    public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass, int sheetNo, int headLineMun) throws FileNotFoundException {
+        return read(getFileInputStream(path), tClass, sheetNo, headLineMun);
     }
 
+    /**
+     * read excel by java bean with InputStream
+     *
+     * @param in          InputStream
+     * @param tClass      java bean what extend the BaseRowModel
+     * @param sheetNo     sheetNumber
+     * @param headLineMun headLineNumber
+     * @param <T>         T
+     * @return list<bean>
+     */
     @SuppressWarnings("unchecked")
-    public static <T> List<T> read(InputStream in, int sheetNo, int headLineMun, Class<? extends BaseRowModel> tClass) {
+    public static <T> List<T> read(InputStream in, Class<? extends BaseRowModel> tClass, int sheetNo, int headLineMun) {
         List<T> lists = new ArrayList<T>();
         try {
             lists = (List<T>) EasyExcelFactory.read(in, new Sheet(sheetNo, headLineMun, tClass));
@@ -78,6 +150,45 @@ public class EasyExcelUtil {
         }
         return lists;
     }
+
+    /**
+     * custom read excel, it's need to Override AnalysisEventListener
+     *
+     * @param path     file path
+     * @param listener AnalysisEventListener what need to Override
+     * @throws FileNotFoundException if file not exist
+     * @see com.alibaba.excel.event.AnalysisEventListener
+     */
+    public static void read(String path, AnalysisEventListener listener) throws FileNotFoundException {
+        EasyExcelFactory.readBySax(getFileInputStream(path), new Sheet(1, 1), listener);
+    }
+
+    /**
+     * custom read excel, it's need to Override AnalysisEventListener
+     *
+     * @param path        file path
+     * @param sheetNo     SheetNumber
+     * @param headLineMun headLine
+     * @param listener    AnalysisEventListener what need to Override
+     * @throws FileNotFoundException if file not exist
+     * @see com.alibaba.excel.event.AnalysisEventListener
+     */
+    public static void read(String path, int sheetNo, int headLineMun, AnalysisEventListener listener) throws FileNotFoundException {
+        EasyExcelFactory.readBySax(getFileInputStream(path), new Sheet(sheetNo, headLineMun), listener);
+    }
+
+    /**
+     * custom read excel, it's need to Override AnalysisEventListener
+     *
+     * @param path     file path
+     * @param sheet    Sheet
+     * @param listener AnalysisEventListener what need to Override
+     * @see com.alibaba.excel.event.AnalysisEventListener
+     */
+    public static void read(InputStream in, Sheet sheet, AnalysisEventListener listener) {
+        EasyExcelFactory.readBySax(in, sheet, listener);
+    }
+
 
     public static void write(List<List<Object>> lists, List<String> singleHead, String path) {
         OutputStream out = null;
@@ -253,7 +364,8 @@ public class EasyExcelUtil {
     }
 
     private static List<String> jsonParse(String str) {
-        LinkedHashMap<String, Object> rootStr = JSON.parseObject(str, new TypeReference<LinkedHashMap<String, Object>>() {}, Feature.OrderedField);
+        LinkedHashMap<String, Object> rootStr = JSON.parseObject(str, new TypeReference<LinkedHashMap<String, Object>>() {
+        }, Feature.OrderedField);
         return new ArrayList<String>(rootStr.keySet());
     }
 }

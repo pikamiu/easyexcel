@@ -3,9 +3,8 @@ package com.alibaba.excel.event;
 import com.alibaba.excel.context.AnalysisContext;
 
 /**
- *
- *
- * @author jipengfei
+ * event listener
+ * @param <T>
  */
 public abstract class AnalysisEventListener<T> {
 
@@ -20,7 +19,7 @@ public abstract class AnalysisEventListener<T> {
     /**
      * if have something to do after all  analysis
      *
-     * @param context
+     * @param context AnalysisContext
      */
     public abstract void doAfterAllAnalysed(AnalysisContext context);
 }

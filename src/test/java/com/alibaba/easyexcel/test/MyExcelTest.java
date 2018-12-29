@@ -4,6 +4,7 @@ import static com.alibaba.easyexcel.test.util.DataUtil.*;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import org.junit.Test;
 import com.alibaba.easyexcel.test.model.ReadModel;
 import com.alibaba.easyexcel.test.model.WriteModel2;
 import com.alibaba.excel.EasyExcelUtil;
+import com.alibaba.excel.context.AnalysisContext;
+import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.metadata.Sheet.Builder;
 
 /**
@@ -33,6 +36,23 @@ public class MyExcelTest {
     public void simpleReadJavaModelV2007() throws IOException {
         List data = EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\11.xlsx", ReadModel.class);
         print(data);
+    }
+
+    @Test
+    public void readDesign() throws FileNotFoundException {
+        final List<List<String>> data = new ArrayList<List<String>>();
+        EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\sku_status_import_template.xlsx",  new AnalysisEventListener() {
+            @Override
+            public void invoke(Object object, AnalysisContext context) {
+                data.add((List<String>) object);
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+
+            }
+        });
+        System.out.println(data);
     }
 
     @Test
