@@ -22,7 +22,7 @@ public class ExcelHeadProperty {
     /**
      * A two-dimensional array describing the header
      */
-    private List<List<String>> head = new ArrayList<List<String>>();
+    private List<List<String>> head;
 
     /**
      * Attributes described by the header
@@ -52,14 +52,14 @@ public class ExcelHeadProperty {
             // level.
             while (tempClass != null) {
                 fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
-                //Get the parent class and give it to yourself
+                // Get the parent class and give it to yourself
                if (!globalAnnotation)
                    tempClass = tempClass.getSuperclass();
                else
                    tempClass = null;
             }
             List<List<String>> headList = new ArrayList<List<String>>();
-            fieldList = removeIgnore(fieldList);
+            removeIgnore(fieldList);
             for (int i = 0; i < fieldList.size(); i++) {
                 if (globalAnnotation)
                     initOneColumnPropertyWithType(fieldList.get(i), i);
@@ -81,14 +81,13 @@ public class ExcelHeadProperty {
         return headClazz.getAnnotation(ExcelProperty.class) != null;
     }
 
-    private List<Field> removeIgnore(List<Field> fields) {
+    private void removeIgnore(List<Field> fields) {
         Iterator<Field> it = fields.iterator();
         while (it.hasNext()) {
             ExcelProperty p = it.next().getAnnotation(ExcelProperty.class);
             if (p != null && p.ignore())
                 it.remove();
         }
-        return fields;
     }
 
     private void initOneColumnPropertyWithType(Field f, Integer indexSelf) {

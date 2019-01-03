@@ -12,6 +12,7 @@ import com.alibaba.excel.write.ExcelBuilderImpl;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Excel Writer This tool is used to write data out to Excel via POI.
@@ -168,6 +169,11 @@ public class ExcelWriter {
      */
     public ExcelWriter writeString(List<List<String>> data, Sheet sheet, Table table) {
         excelBuilder.addContent(data, sheet, table);
+        return this;
+    }
+
+    public ExcelWriter writeMap(List<Map<String, Object>> data, Sheet sheet) {
+        excelBuilder.addContent(data, sheet);
         return this;
     }
 

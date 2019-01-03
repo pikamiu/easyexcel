@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -14,6 +15,8 @@ import java.util.List;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.metadata.Sheet.SheetBuilder;
+import com.alibaba.excel.metadata.WriteInfo;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson.parser.Feature;
@@ -95,11 +98,15 @@ public class EasyExcelUtil {
      * @param tClass java bean what extend the BaseRowModel
      * @param <T>    T
      * @return list<bean>
-     * @throws FileNotFoundException Make sure that file exist
      * @see com.alibaba.excel.annotation.ExcelProperty
      */
-    public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass) throws FileNotFoundException {
-        return read(getFileInputStream(path), tClass, 1, 1);
+    public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass) {
+        try {
+            return read(getFileInputStream(path), tClass, 1, 1);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -115,11 +122,15 @@ public class EasyExcelUtil {
      * @param headLineMun headLineNumber it's use to judge context start line
      * @param <T>         T
      * @return list<bean>
-     * @throws FileNotFoundException Make sure that file exist
      * @see com.alibaba.excel.annotation.ExcelProperty
      */
-    public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass, int sheetNo, int headLineMun) throws FileNotFoundException {
-        return read(getFileInputStream(path), tClass, sheetNo, headLineMun);
+    public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass, int sheetNo, int headLineMun) {
+        try {
+            return read(getFileInputStream(path), tClass, sheetNo, headLineMun);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -159,8 +170,12 @@ public class EasyExcelUtil {
      * @throws FileNotFoundException if file not exist
      * @see com.alibaba.excel.event.AnalysisEventListener
      */
-    public static void read(String path, AnalysisEventListener listener) throws FileNotFoundException {
-        EasyExcelFactory.readBySax(getFileInputStream(path), new Sheet(1, 1), listener);
+    public static void read(String path, AnalysisEventListener listener) {
+        try {
+            EasyExcelFactory.readBySax(getFileInputStream(path), new Sheet(1, 1), listener);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -173,8 +188,12 @@ public class EasyExcelUtil {
      * @throws FileNotFoundException if file not exist
      * @see com.alibaba.excel.event.AnalysisEventListener
      */
-    public static void read(String path, int sheetNo, int headLineMun, AnalysisEventListener listener) throws FileNotFoundException {
-        EasyExcelFactory.readBySax(getFileInputStream(path), new Sheet(sheetNo, headLineMun), listener);
+    public static void read(String path, int sheetNo, int headLineMun, AnalysisEventListener listener) {
+        try {
+            EasyExcelFactory.readBySax(getFileInputStream(path), new Sheet(sheetNo, headLineMun), listener);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -190,6 +209,13 @@ public class EasyExcelUtil {
     }
 
 
+    /**
+     * write excel
+     *
+     * @param lists      data list
+     * @param singleHead one line head
+     * @param path       file out path
+     */
     public static void write(List<List<Object>> lists, List<String> singleHead, String path) {
         OutputStream out = null;
         try {
@@ -210,12 +236,19 @@ public class EasyExcelUtil {
         }
     }
 
-    public static void writeWithMultiHead(List<List<Object>> lists, List<List<String>> head, String path) {
+    /**
+     * write excel
+     *
+     * @param lists     data list
+     * @param multiHead combine head title
+     * @param path      file path
+     */
+    public static void writeWithMultiHead(List<List<Object>> lists, List<List<String>> multiHead, String path) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeObject(lists, new Sheet(1, 1, head));
+            writer.writeObject(lists, new Sheet(1, 1, multiHead));
             writer.finish();
         } catch (Exception e) {
             e.printStackTrace();
@@ -322,10 +355,6 @@ public class EasyExcelUtil {
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            List<List<String>> head = listTransform(jsonParse(lists.get(0)));
-            if (sheet.getHead() == null) {
-                sheet.setHead(head);
-            }
             writer.writeJson(lists, sheet);
             writer.finish();
         } catch (Exception e) {
@@ -341,8 +370,70 @@ public class EasyExcelUtil {
         }
     }
 
-    public static ExcelWriter writeStream(String path) throws FileNotFoundException {
-        OutputStream out = new FileOutputStream(path);
+    public static void write(WriteInfo writeInfo, String path) {
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(path);
+            ExcelWriter writer = EasyExcelFactory.getWriter(out);
+            writer.writeMap(writeInfo.getContentList(),
+                    new SheetBuilder()
+                            .sheetNo(1)
+                            .headLineMun(1)
+                            .sheetName(writeInfo.getSheetName())
+                            .singleHead(Arrays.asList(writeInfo.getTitle()))
+                            .contentTitle(Arrays.asList(writeInfo.getContentTitle()))
+                            .build());
+            writer.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void write(List<WriteInfo> list, String path) {
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(path);
+            ExcelWriter writer = EasyExcelFactory.getWriter(out);
+            for (int i = 0; i < list.size(); i++) {
+                WriteInfo writeInfo = list.get(i);
+                writer.writeMap(writeInfo.getContentList(),
+                        new SheetBuilder()
+                                .sheetNo(i + 1)
+                                .headLineMun(1)
+                                .sheetName(writeInfo.getSheetName())
+                                .singleHead(Arrays.asList(writeInfo.getTitle()))
+                                .contentTitle(Arrays.asList(writeInfo.getContentTitle()))
+                                .build());
+            }
+            writer.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static ExcelWriter writeStream(String path) {
+        OutputStream out = null;
+        try {
+            out = new FileOutputStream(path);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
         return EasyExcelFactory.getWriter(out);
     }
 

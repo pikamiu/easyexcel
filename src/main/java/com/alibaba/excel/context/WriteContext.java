@@ -93,7 +93,9 @@ public class WriteContext {
      */
     private ExcelHeadProperty excelHeadProperty;
 
-    private boolean needHead = Boolean.TRUE;
+    private List<String> contentTitle;
+
+    private boolean needHead;
 
     private WriteHandler afterWriteHandler;
 
@@ -136,8 +138,9 @@ public class WriteContext {
 
     private void initCurrentSheet(com.alibaba.excel.metadata.Sheet sheet) {
 
-        /** **/
         initExcelHeadProperty(getHead(sheet), sheet.getClazz());
+
+        initContentTitle(sheet.getContentTitle());
 
         initTableStyle(sheet.getTableStyle());
 
@@ -149,6 +152,7 @@ public class WriteContext {
         this.currentSheet = null;
         this.currentSheetParam = null;
         this.excelHeadProperty = null;
+        this.contentTitle = null;
         this.currentHeadCellStyle = null;
         this.currentContentCellStyle = null;
         this.currentTable = null;
@@ -163,6 +167,12 @@ public class WriteContext {
      */
     private void initExcelHeadProperty(List<List<String>> head, Class<? extends BaseRowModel> clazz) {
         if (head != null || clazz != null) { this.excelHeadProperty = new ExcelHeadProperty(clazz, head); }
+    }
+
+    private void initContentTitle(List<String> contentTitle) {
+        if (contentTitle != null) {
+            this.contentTitle = contentTitle;
+        }
     }
 
     public void initTableHead() {
@@ -238,6 +248,10 @@ public class WriteContext {
 
     public ExcelHeadProperty getExcelHeadProperty() {
         return this.excelHeadProperty;
+    }
+
+    public List<String> getContentTitle() {
+        return contentTitle;
     }
 
     public boolean needHead() {

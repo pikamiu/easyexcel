@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class DataUtil {
 
@@ -151,5 +152,9 @@ public class DataUtil {
         tableStyle.setTableContentBackGroundColor(IndexedColors.WHITE1);
 
         return tableStyle;
+    }
+
+    public static List<Map<String, Object>> createDbMapData() throws IllegalAccessException {
+        return BeanConvertUtil.listBean2Map(createTestListJavaMode2());
     }
 }

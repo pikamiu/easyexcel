@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -87,6 +88,35 @@ public class ExcelBuilderImpl implements ExcelBuilder {
     }
 
     @Override
+    public void addContent(Map data, int startRow) {
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+        int rowNum = context.getCurrentSheet().getLastRowNum();
+        if (rowNum == 0) {
+            Row row = context.getCurrentSheet().getRow(0);
+            if (row == null) {
+                if (context.getExcelHeadProperty() == null || !context.needHead()) {
+                    rowNum = -1;
+                }
+            }
+        }
+        if (rowNum < startRow) {
+            rowNum = startRow;
+        }
+        for (int i = 0; i < data.size(); i++) {
+            int n = i + rowNum + 1;
+            addOneRowOfDataToExcel(data.get(i), n);
+        }
+    }
+
+    @Override
+    public void addContent(Map data, Sheet sheetParam) {
+        context.currentSheet(sheetParam);
+        addContent(data, sheetParam.getStartRow());
+    }
+
+    @Override
     public void addHead(Object object, Sheet sheetParam) {
         if (object instanceof String) {
             addJsonHead((String) object, sheetParam);
@@ -125,8 +155,10 @@ public class ExcelBuilderImpl implements ExcelBuilder {
 
     private void addJsonHead(String str, Sheet sheetParam) {
         if (sheetParam.getHead() == null && sheetParam.getSingleHead() == null) {
+            List<String> l = JSONUtil.jsonParse(str);
             List<List<String>> jsonHead = ListUtil.listWarp(JSONUtil.jsonParse(str));
             sheetParam.setHead(jsonHead);
+            sheetParam.setContentTitle(l);
         }
     }
 
@@ -134,10 +166,29 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         if (oneRowData == null) {
             return;
         }
-        List<List<String>> heads = context.getExcelHeadProperty().getHead();
+        List<String> heads = context.getContentTitle();
         for (int i = 0; i < heads.size(); i++) {
             JSONObject json = JSON.parseObject(String.valueOf(oneRowData));
-            Object cellValue = json.get(heads.get(i).get(0));
+            Object cellValue = json.get(heads.get(i));
+            Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
+                    TypeUtil.isNum(cellValue));
+            if (null != context.getAfterWriteHandler()) {
+                context.getAfterWriteHandler().cell(i, cell);
+            }
+        }
+    }
+
+    private void addMapToExcel(Object oneRowData, Row row) {
+        if (oneRowData == null) {
+            return;
+        }
+        List<String> contentTitle = context.getContentTitle();
+        if (contentTitle == null) {
+            throw new ExcelGenerateException("contentTitle can't be empty");
+        }
+        for (int i = 0; i < contentTitle.size(); i++) {
+            Map<String, Object> map = (Map<String, Object>) oneRowData;
+            Object cellValue = map.get(contentTitle.get(i));
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
                     TypeUtil.isNum(cellValue));
             if (null != context.getAfterWriteHandler()) {
@@ -179,6 +230,8 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             addBasicTypeToExcel((List) oneRowData, row);
         } else if (oneRowData instanceof String) {
             addJsonToExcel(oneRowData, row);
+        } else if(oneRowData instanceof Map) {
+            addMapToExcel(oneRowData, row);
         } else {
             addJavaObjectToExcel(oneRowData, row);
         }

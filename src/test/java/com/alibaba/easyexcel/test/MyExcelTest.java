@@ -15,7 +15,9 @@ import com.alibaba.easyexcel.test.model.WriteModel2;
 import com.alibaba.excel.EasyExcelUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.alibaba.excel.metadata.Sheet.Builder;
+import com.alibaba.excel.metadata.Sheet;
+import com.alibaba.excel.metadata.Sheet.SheetBuilder;
+import com.alibaba.excel.metadata.WriteInfo;
 
 /**
  * <p>简要说明...</p>
@@ -39,7 +41,7 @@ public class MyExcelTest {
     }
 
     @Test
-    public void readDesign() throws FileNotFoundException {
+    public void readDesign(){
         final List<List<String>> data = new ArrayList<List<String>>();
         EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\sku_status_import_template.xlsx",  new AnalysisEventListener() {
             @Override
@@ -62,7 +64,7 @@ public class MyExcelTest {
 
     @Test
     public void writeByBeanWithBuild() {
-        EasyExcelUtil.writeByBean(createTestListJavaMode2(), new Builder()
+        EasyExcelUtil.writeByBean(createTestListJavaMode2(), new SheetBuilder()
                         .clazz(WriteModel2.class)
                         .autoWidth(true)
                         .sheetName("hello world")
@@ -88,7 +90,7 @@ public class MyExcelTest {
 
     @Test
     public void writeByJsonDIY() {
-        EasyExcelUtil.writeByJson(createTestJsonString(), new Builder()
+        EasyExcelUtil.writeByJson(createTestJsonString(), new SheetBuilder()
                 .sheetName("hello world")
                 .sheetNo(1)
                 .headLineMun(1)
@@ -96,12 +98,40 @@ public class MyExcelTest {
     }
 
     @Test
-    public void write() throws FileNotFoundException {
+    public void write() throws IllegalAccessException {
+        Sheet mapSheet = new SheetBuilder()
+                .sheetNo(4)
+                .sheetName("hello hadoop")
+                .contentTitle(Arrays.asList("p5", "p2", "p3"))
+                .singleHead(Arrays.asList("账号", "平台", "站点"))
+                .build();
+
         EasyExcelUtil.writeStream("C:\\Users\\Draher\\Desktop\\multiSheet.xlsx")
-                .writeBean(createTestListJavaMode2(), new Builder().sheetNo(1).sheetName("hello java").clazz(WriteModel2.class).build())
-                .writeObject(createTestListObject(), new Builder().sheetNo(2).sheetName("hello scala").head(createTestListStringHead()).build())
-                .writeJson(createTestJsonString(), new Builder().sheetNo(3).sheetName("hello spark").build())
+                .writeBean(createTestListJavaMode2(), new SheetBuilder().sheetNo(1).sheetName("hello java").clazz(WriteModel2.class).build())
+                .writeObject(createTestListObject(), new SheetBuilder().sheetNo(2).sheetName("hello scala").head(createTestListStringHead()).build())
+                .writeJson(createTestJsonString(), new SheetBuilder().sheetNo(3).sheetName("hello spark").build())
+                .writeMap(createDbMapData(), mapSheet)
                 .finish();
+    }
+
+    @Test
+    public void writeMap() throws IllegalAccessException {
+        final WriteInfo writeInfo = new WriteInfo.WriteInfoBuild()
+                .sheetName("write test")
+                .title(new String[]{"p1", "p2", "p3"})
+                .contentTitle(new String[]{"p1", "p2", "p3"})
+                .contentList(createDbMapData())
+                .build();
+        final WriteInfo writeInfo2 = new WriteInfo.WriteInfoBuild()
+                .sheetName("write test2")
+                .title(new String[]{"账号", "站点", "平台"})
+                .contentTitle(new String[]{"p1", "p2", "p3"})
+                .contentList(createDbMapData())
+                .build();
+        EasyExcelUtil.write(new ArrayList<WriteInfo>() {{
+            add(writeInfo);
+            add(writeInfo2);
+        }}, "C:\\Users\\Draher\\Desktop\\map.xlsx");
     }
 
 

@@ -4,6 +4,7 @@ import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.metadata.Table;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jipengfei
@@ -34,6 +35,22 @@ public interface ExcelBuilder {
      * @param table      Write the table
      */
     void addContent(List data, Sheet sheetParam, Table table);
+
+    /**
+     * workBook increase data
+     *
+     * @param data     java basic type or java model extend BaseModel
+     * @param startRow Start row number
+     */
+    void addContent(Map data, int startRow);
+
+    /**
+     * WorkBook increase data
+     *
+     * @param data       java basic type or java model extend BaseModel
+     * @param sheetParam Write the sheet
+     */
+    void addContent(Map data, Sheet sheetParam);
 
     /**
      * create excel head, main use to write json data head
