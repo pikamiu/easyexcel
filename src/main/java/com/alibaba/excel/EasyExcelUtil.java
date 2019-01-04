@@ -8,8 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -17,9 +15,6 @@ import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.metadata.Sheet.SheetBuilder;
 import com.alibaba.excel.metadata.WriteInfo;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
-import com.alibaba.fastjson.parser.Feature;
 
 /**
  * <p>easy excel util </p>
@@ -97,7 +92,7 @@ public class EasyExcelUtil {
      * @param path   file path
      * @param tClass java bean what extend the BaseRowModel
      * @param <T>    T
-     * @return list<bean>
+     * @return list
      * @see com.alibaba.excel.annotation.ExcelProperty
      */
     public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass) {
@@ -121,7 +116,7 @@ public class EasyExcelUtil {
      * @param sheetNo     sheetNumber
      * @param headLineMun headLineNumber it's use to judge context start line
      * @param <T>         T
-     * @return list<bean>
+     * @return list
      * @see com.alibaba.excel.annotation.ExcelProperty
      */
     public static <T> List<T> read(String path, Class<? extends BaseRowModel> tClass, int sheetNo, int headLineMun) {
@@ -141,7 +136,7 @@ public class EasyExcelUtil {
      * @param sheetNo     sheetNumber
      * @param headLineMun headLineNumber
      * @param <T>         T
-     * @return list<bean>
+     * @return list
      */
     @SuppressWarnings("unchecked")
     public static <T> List<T> read(InputStream in, Class<? extends BaseRowModel> tClass, int sheetNo, int headLineMun) {
@@ -167,7 +162,6 @@ public class EasyExcelUtil {
      *
      * @param path     file path
      * @param listener AnalysisEventListener what need to Override
-     * @throws FileNotFoundException if file not exist
      * @see com.alibaba.excel.event.AnalysisEventListener
      */
     public static void read(String path, AnalysisEventListener listener) {
@@ -185,7 +179,6 @@ public class EasyExcelUtil {
      * @param sheetNo     SheetNumber
      * @param headLineMun headLine
      * @param listener    AnalysisEventListener what need to Override
-     * @throws FileNotFoundException if file not exist
      * @see com.alibaba.excel.event.AnalysisEventListener
      */
     public static void read(String path, int sheetNo, int headLineMun, AnalysisEventListener listener) {
@@ -199,7 +192,7 @@ public class EasyExcelUtil {
     /**
      * custom read excel, it's need to Override AnalysisEventListener
      *
-     * @param path     file path
+     * @param in       source
      * @param sheet    Sheet
      * @param listener AnalysisEventListener what need to Override
      * @see com.alibaba.excel.event.AnalysisEventListener
@@ -221,7 +214,7 @@ public class EasyExcelUtil {
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeObject(lists, new Sheet(1, 1, listTransform(singleHead)));
+            writer.writeObject(lists, new Sheet.SheetBuilder().sheetNo(1).headLineMun(1).singleHead(singleHead).build());
             writer.finish();
         } catch (Exception e) {
             e.printStackTrace();
@@ -263,6 +256,13 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel
+     *
+     * @param lists dataList
+     * @param sheet sheet
+     * @param path  file path
+     */
     public static void write(List<List<Object>> lists, Sheet sheet, String path) {
         OutputStream out = null;
         try {
@@ -283,12 +283,23 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel by java bean,
+     * the excel title it depend on java bean's field name, otherwise exist ExcelProperty annotation and value is not empty.
+     * the content index is the field index, But you can also change it by use ExcelProperty annotation index field.
+     * the last but not least you can use ExcelProperty annotation in class ,then you need't use annotation in each filed.
+     * but the index value will use default index
+     *
+     * @param models list bean
+     * @param tClass the class what expends BaseRowModel
+     * @param path   file path
+     */
     public static void writeByBean(List<? extends BaseRowModel> models, Class<? extends BaseRowModel> tClass, String path) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeBean(models, new Sheet(0, 1, tClass));
+            writer.writeBean(models, new Sheet(1, 1, tClass));
             writer.finish();
         } catch (Exception e) {
             e.printStackTrace();
@@ -303,6 +314,13 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel by java bean, design sheet yourself
+     *
+     * @param models bean list
+     * @param sheet  sheet info
+     * @param path   file path
+     */
     public static void writeByBean(List<? extends BaseRowModel> models, Sheet sheet, String path) {
         OutputStream out = null;
         try {
@@ -323,6 +341,12 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel by json, it will use json key make title
+     *
+     * @param lists dataList
+     * @param path  file path
+     */
     public static void writeByJson(List<String> lists, String path) {
         if (lists.size() <= 0) {
             throw new IllegalArgumentException("data can't be empty");
@@ -331,8 +355,7 @@ public class EasyExcelUtil {
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            List<List<String>> head = listTransform(jsonParse(lists.get(0)));
-            writer.writeJson(lists, new Sheet(1, 1, head));
+            writer.writeJson(lists, new Sheet(1, 1));
             writer.finish();
         } catch (Exception e) {
             e.printStackTrace();
@@ -347,6 +370,13 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel by json, it will use json key make title
+     *
+     * @param lists dataList
+     * @param sheet sheet
+     * @param path  file Path
+     */
     public static void writeByJson(List<String> lists, Sheet sheet, String path) {
         if (lists.size() <= 0) {
             throw new IllegalArgumentException("data can't be empty");
@@ -370,6 +400,19 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel with writeInfo, the class writeInfo Adopt builders
+     * eg :
+     * new WriteInfoBuild()
+     * .sheetName("sheet1")
+     * .title(new String[]{"账号", "站点"})
+     * .contentTitle(new String[]{"account", "site"})
+     * .contentList(data)
+     * .build()
+     *
+     * @param writeInfo Stores the information that needs to be written
+     * @param path      file path
+     */
     public static void write(WriteInfo writeInfo, String path) {
         OutputStream out = null;
         try {
@@ -397,6 +440,12 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * write excel with list writeInfo
+     *
+     * @param list writeInfo list
+     * @param path path
+     */
     public static void write(List<WriteInfo> list, String path) {
         OutputStream out = null;
         try {
@@ -427,6 +476,12 @@ public class EasyExcelUtil {
         }
     }
 
+    /**
+     * get write stream
+     *
+     * @param path file path
+     * @return ExcelWriter
+     */
     public static ExcelWriter writeStream(String path) {
         OutputStream out = null;
         try {
@@ -437,26 +492,7 @@ public class EasyExcelUtil {
         return EasyExcelFactory.getWriter(out);
     }
 
-
-    public static InputStream getResourcesFileInputStream(String fileName) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream("" + fileName);
-    }
-
-    public static InputStream getFileInputStream(String fileName) throws FileNotFoundException {
+    private static InputStream getFileInputStream(String fileName) throws FileNotFoundException {
         return new FileInputStream(fileName);
-    }
-
-    private static List<List<String>> listTransform(List<String> list) {
-        List<List<String>> l = new ArrayList<List<String>>();
-        for (String s : list) {
-            l.add(Collections.singletonList(s));
-        }
-        return l;
-    }
-
-    private static List<String> jsonParse(String str) {
-        LinkedHashMap<String, Object> rootStr = JSON.parseObject(str, new TypeReference<LinkedHashMap<String, Object>>() {
-        }, Feature.OrderedField);
-        return new ArrayList<String>(rootStr.keySet());
     }
 }
