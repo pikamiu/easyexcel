@@ -294,12 +294,17 @@ public class EasyExcelUtil {
      * @param tClass the class what expends BaseRowModel
      * @param path   file path
      */
-    public static void writeByBean(List<? extends BaseRowModel> models, Class<? extends BaseRowModel> tClass, String path) {
+    public static void writeByBean(List<? extends BaseRowModel> models, Class<? extends BaseRowModel> tClass, String sheetName, String path) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeBean(models, new Sheet(1, 1, tClass));
+            writer.writeBean(models, new Sheet.SheetBuilder()
+                    .sheetNo(1)
+                    .headLineMun(1)
+                    .sheetName(sheetName)
+                    .clazz(tClass)
+                    .build());
             writer.finish();
         } catch (Exception e) {
             e.printStackTrace();

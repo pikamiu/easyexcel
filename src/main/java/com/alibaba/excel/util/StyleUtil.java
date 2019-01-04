@@ -1,6 +1,8 @@
 package com.alibaba.excel.util;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 
 import java.util.Map;
 
@@ -9,26 +11,35 @@ import java.util.Map;
  */
 public class StyleUtil {
 
+    public static void buildRowSttle(Row row) {
+        row.setHeight((short) 600);
+    }
+
     /**
      *
      * @param workbook
      * @return
      */
     public static CellStyle buildDefaultHeadCellStyle(Workbook workbook) {
-        CellStyle newCellStyle = workbook.createCellStyle();
+        XSSFCellStyle newCellStyle = (XSSFCellStyle) workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontName("宋体");
-        font.setFontHeightInPoints((short)14);
-        font.setBold(true);
+        font.setFontHeight((short) 220);
         newCellStyle.setFont(font);
+
         newCellStyle.setWrapText(true);
+        newCellStyle.setLocked(true);
         newCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         newCellStyle.setAlignment(HorizontalAlignment.CENTER);
-        newCellStyle.setLocked(true);
-        newCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         newCellStyle.setFillForegroundColor(IndexedColors.PALE_BLUE.getIndex());
-        newCellStyle.setBorderBottom(BorderStyle.THIN);
+        newCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        XSSFColor borderColor = new XSSFColor(new java.awt.Color(148, 138, 84));
         newCellStyle.setBorderLeft(BorderStyle.THIN);
+        newCellStyle.setBorderRight(BorderStyle.THIN);
+        newCellStyle.setLeftBorderColor(borderColor);
+        newCellStyle.setRightBorderColor(borderColor);
+
         return newCellStyle;
     }
 
