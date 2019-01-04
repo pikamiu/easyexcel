@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class StyleUtil {
 
-    public static void buildRowSttle(Row row) {
+    public static void buildRowStyle(Row row) {
         row.setHeight((short) 600);
     }
 
