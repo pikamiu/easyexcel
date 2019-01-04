@@ -55,7 +55,7 @@ public class Sheet {
     /**
      *
      */
-    private Boolean autoWidth = Boolean.FALSE;
+    private Boolean autoWidth = Boolean.TRUE;
 
     /**
      *
@@ -224,7 +224,7 @@ public class Sheet {
         private List<String> contentTitle;
         private TableStyle tableStyle;
         private Map<Integer,Integer> columnWidthMap = new HashMap<Integer, Integer>();
-        private Boolean autoWidth = Boolean.FALSE;
+        private Boolean autoWidth = Boolean.TRUE;
         private int startRow = 0;
 
         public SheetBuilder sheetNo(int val) {

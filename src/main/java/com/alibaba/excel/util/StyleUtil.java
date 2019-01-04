@@ -27,7 +27,6 @@ public class StyleUtil {
         font.setFontHeight((short) 220);
         newCellStyle.setFont(font);
 
-        newCellStyle.setWrapText(true);
         newCellStyle.setLocked(true);
         newCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         newCellStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -50,8 +49,10 @@ public class StyleUtil {
         font.setFontHeightInPoints((short)11);
         font.setBold(false);
         newCellStyle.setFont(font);
+
         newCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         newCellStyle.setAlignment(HorizontalAlignment.CENTER);
+
         return newCellStyle;
     }
 

@@ -59,7 +59,7 @@ public class MyExcelTest {
 
     @Test
     public void writeByBean() {
-        EasyExcelUtil.writeByBean(createTestListJavaMode2(), WriteModel2.class, "C:\\Users\\Draher\\Desktop\\2007model.xlsx");
+        EasyExcelUtil.writeByBean(createTestListJavaMode2(), WriteModel2.class, "ah", "C:\\Users\\Draher\\Desktop\\2007model.xlsx");
     }
 
     @Test
