@@ -200,21 +200,21 @@ public class Sheet {
         this.startRow = startRow;
     }
 
-    private Sheet(SheetBuilder sheetBuilder) {
-        this.headLineMun = sheetBuilder.headLineMun;
-        this.sheetNo = sheetBuilder.sheetNo;
-        this.sheetName = sheetBuilder.sheetName;
-        this.clazz = sheetBuilder.clazz;
-        this.head = sheetBuilder.head;
-        this.singleHead = sheetBuilder.singleHead;
-        this.contentTitle = sheetBuilder.contentTitle;
-        this.tableStyle = sheetBuilder.tableStyle;
-        this.columnWidthMap = sheetBuilder.columnWidthMap;
-        this.autoWidth = sheetBuilder.autoWidth;
-        this.startRow = sheetBuilder.startRow;
+    private Sheet(Builder builder) {
+        this.headLineMun = builder.headLineMun;
+        this.sheetNo = builder.sheetNo;
+        this.sheetName = builder.sheetName;
+        this.clazz = builder.clazz;
+        this.head = builder.head;
+        this.singleHead = builder.singleHead;
+        this.contentTitle = builder.contentTitle;
+        this.tableStyle = builder.tableStyle;
+        this.columnWidthMap = builder.columnWidthMap;
+        this.autoWidth = builder.autoWidth;
+        this.startRow = builder.startRow;
     }
 
-    public static class SheetBuilder implements Builders<Sheet> {
+    public static class Builder implements Builders<Sheet> {
         private int headLineMun = 0;
         private int sheetNo = 1;
         private String sheetName;
@@ -227,47 +227,47 @@ public class Sheet {
         private Boolean autoWidth = Boolean.TRUE;
         private int startRow = 0;
 
-        public SheetBuilder sheetNo(int val) {
+        public Builder sheetNo(int val) {
             sheetNo = val;
             return this;
         }
-        public SheetBuilder headLineMun(int val) {
+        public Builder headLineMun(int val) {
             headLineMun = val;
             return this;
         }
-        public SheetBuilder sheetName(String val) {
+        public Builder sheetName(String val) {
             sheetName = val;
             return this;
         }
-        public SheetBuilder clazz(Class<? extends BaseRowModel> val) {
+        public Builder clazz(Class<? extends BaseRowModel> val) {
             clazz = val;
             return this;
         }
-        public SheetBuilder head(List<List<String>> val) {
+        public Builder head(List<List<String>> val) {
             head = val;
             return this;
         }
-        public SheetBuilder singleHead(List<String> val) {
+        public Builder singleHead(List<String> val) {
             singleHead = val;
             return this;
         }
-        public SheetBuilder contentTitle(List<String> val) {
+        public Builder contentTitle(List<String> val) {
             contentTitle = val;
             return this;
         }
-        public SheetBuilder tableStyle(TableStyle val) {
+        public Builder tableStyle(TableStyle val) {
             tableStyle = val;
             return this;
         }
-        public SheetBuilder columnWidthMap(Map<Integer,Integer> val) {
+        public Builder columnWidthMap(Map<Integer,Integer> val) {
             columnWidthMap = val;
             return this;
         }
-        public SheetBuilder autoWidth(boolean val) {
+        public Builder autoWidth(boolean val) {
             autoWidth = val;
             return this;
         }
-        public SheetBuilder startRow(int val) {
+        public Builder startRow(int val) {
             startRow = val;
             return this;
         }

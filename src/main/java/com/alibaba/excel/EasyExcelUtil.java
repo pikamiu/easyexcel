@@ -13,7 +13,7 @@ import java.util.List;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.metadata.BaseRowModel;
 import com.alibaba.excel.metadata.Sheet;
-import com.alibaba.excel.metadata.Sheet.SheetBuilder;
+import com.alibaba.excel.metadata.Sheet.Builder;
 import com.alibaba.excel.metadata.WriteInfo;
 
 /**
@@ -209,12 +209,12 @@ public class EasyExcelUtil {
      * @param singleHead one line head
      * @param path       file out path
      */
-    public static void write(List<List<Object>> lists, List<String> singleHead, String path) {
+    public static void write(List<List<Object>> lists, List<String> singleHead, String sheetName, String path) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeObject(lists, new Sheet.SheetBuilder().sheetNo(1).headLineMun(1).singleHead(singleHead).build());
+            writer.writeObject(lists, new Builder().sheetNo(1).headLineMun(1).sheetName(sheetName).singleHead(singleHead).build());
             writer.finish();
         } catch (Exception e) {
             e.printStackTrace();
@@ -299,7 +299,7 @@ public class EasyExcelUtil {
         try {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeBean(models, new Sheet.SheetBuilder()
+            writer.writeBean(models, new Builder()
                     .sheetNo(1)
                     .headLineMun(1)
                     .sheetName(sheetName)
@@ -408,12 +408,12 @@ public class EasyExcelUtil {
     /**
      * write excel with writeInfo, the class writeInfo Adopt builders
      * eg :
-     * new WriteInfoBuild()
-     * .sheetName("sheet1")
-     * .title(new String[]{"账号", "站点"})
-     * .contentTitle(new String[]{"account", "site"})
-     * .contentList(data)
-     * .build()
+     *  WriteInfo writeInfo = new WriteInfo.Builder()
+     *                 .sheetName("sheet1")
+     *                 .title(new String[]{"账号", "站点"})
+     *                 .contentTitle(new String[]{"account", "site"})
+     *                 .contentList(data)
+     *                 .build()
      *
      * @param writeInfo Stores the information that needs to be written
      * @param path      file path
@@ -424,7 +424,7 @@ public class EasyExcelUtil {
             out = new FileOutputStream(path);
             ExcelWriter writer = EasyExcelFactory.getWriter(out);
             writer.writeMap(writeInfo.getContentList(),
-                    new SheetBuilder()
+                    new Sheet.Builder()
                             .sheetNo(1)
                             .headLineMun(1)
                             .sheetName(writeInfo.getSheetName())
@@ -459,7 +459,7 @@ public class EasyExcelUtil {
             for (int i = 0; i < list.size(); i++) {
                 WriteInfo writeInfo = list.get(i);
                 writer.writeMap(writeInfo.getContentList(),
-                        new SheetBuilder()
+                        new Sheet.Builder()
                                 .sheetNo(i + 1)
                                 .headLineMun(1)
                                 .sheetName(writeInfo.getSheetName())

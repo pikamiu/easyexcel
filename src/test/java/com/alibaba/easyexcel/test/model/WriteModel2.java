@@ -19,7 +19,6 @@ public class WriteModel2 extends BaseRowModel {
     @ExcelProperty(value = {"account"})
     private String p1;
 
-    @ExcelProperty(ignore = true)
     private String p2;
 
     private int p3;

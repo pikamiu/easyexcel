@@ -34,32 +34,32 @@ public class WriteInfo {
     /**
      * Private constructor ensure data consistency
      */
-    private WriteInfo(WriteInfoBuild build) {
+    private WriteInfo(Builder build) {
         this.sheetName = build.sheetName;
         this.title = build.title;
         this.contentTitle = build.contentTitle;
         this.contentList = build.contentList;
     }
 
-    public static class WriteInfoBuild implements Builders<WriteInfo> {
+    public static class Builder implements Builders<WriteInfo> {
         private String sheetName;
         private String[] title;
         private String[] contentTitle;
         private List<Map<String, Object>> contentList;
 
-        public WriteInfoBuild sheetName(String val) {
+        public Builder sheetName(String val) {
             this.sheetName = val;
             return this;
         }
-        public WriteInfoBuild title(String[] val) {
+        public Builder title(String[] val) {
             this.title = val;
             return this;
         }
-        public WriteInfoBuild contentTitle(String[] val) {
+        public Builder contentTitle(String[] val) {
             this.contentTitle = val;
             return this;
         }
-        public WriteInfoBuild contentList(List<Map<String, Object>> val) {
+        public Builder contentList(List<Map<String, Object>> val) {
             this.contentList = val;
             return this;
         }

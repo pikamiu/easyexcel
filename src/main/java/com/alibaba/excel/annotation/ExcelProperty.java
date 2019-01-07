@@ -12,6 +12,7 @@ import java.lang.annotation.Target;
  * the index filed will failure and set a default value what the index of the fields,
  * and if the value is empty, it will use the field name make excel head
  *
+ * @author wujiaming
  */
 @Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -22,7 +23,6 @@ public @interface ExcelProperty {
      * it's use to make excel head;
      */
     String[] value() default {""};
-
 
     /**
      * the index of excel
