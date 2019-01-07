@@ -125,7 +125,7 @@ public class DemoTest {
     }
 
     @ExcelProperty(orders = {"wh", "plat", "account", "site", "spu", "sku", "onlineSku", "reason", "status"})
-    private static class SkuStatusTO extends BaseRowModel {
+    public static class SkuStatusTO extends BaseRowModel {
         @ExcelProperty(value = "平台")
         private String plat;
         @ExcelProperty(value = "仓库")
