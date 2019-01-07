@@ -40,34 +40,36 @@ public class ExcelHeadProperty {
         initColumnProperties();
     }
 
-    /**
-     */
     private void initColumnProperties() {
         if (this.headClazz != null) {
             boolean globalAnnotation = initClassTypeAnnotation();
+            Map<String, Integer> orderMap = initOrderType(globalAnnotation);
 
             List<Field> fieldList = new ArrayList<Field>();
             Class tempClass = this.headClazz;
-            //When the parent class is null, it indicates that the parent class (Object class) has reached the top
-            // level.
+            /*
+            When the parent class is null, it indicates that the parent class (Object class) has reached
+            the top level
+             */
             while (tempClass != null) {
                 fieldList.addAll(Arrays.asList(tempClass.getDeclaredFields()));
                 // Get the parent class and give it to yourself
-               if (!globalAnnotation)
-                   tempClass = tempClass.getSuperclass();
-               else
-                   tempClass = null;
+                if (!globalAnnotation)
+                    tempClass = tempClass.getSuperclass();
+                else
+                    tempClass = null;
             }
-            List<List<String>> headList = new ArrayList<List<String>>();
             removeIgnore(fieldList);
             for (int i = 0; i < fieldList.size(); i++) {
                 if (globalAnnotation)
-                    initOneColumnPropertyWithType(fieldList.get(i), i);
+                    initOneColumnPropertyWithType(fieldList.get(i), i, orderMap);
                 else
                     initOneColumnProperty(fieldList.get(i));
             }
-            //对列排序
+            // sort the columns
             Collections.sort(columnPropertyList);
+
+            List<List<String>> headList = new ArrayList<List<String>>();
             if (head == null || head.size() == 0) {
                 for (ExcelColumnProperty excelColumnProperty : columnPropertyList) {
                     headList.add(excelColumnProperty.getHead());
@@ -81,6 +83,19 @@ public class ExcelHeadProperty {
         return headClazz.getAnnotation(ExcelProperty.class) != null;
     }
 
+    private Map<String, Integer> initOrderType(boolean globalAnnotation) {
+        Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+        if (globalAnnotation) {
+            ExcelProperty excelProperty = headClazz.getAnnotation(ExcelProperty.class);
+            String[] orders = excelProperty.orders();
+            for (int i = 0; i < orders.length; i++) {
+                map.put(orders[i], i);
+            }
+        }
+
+        return map;
+    }
+
     private void removeIgnore(List<Field> fields) {
         Iterator<Field> it = fields.iterator();
         while (it.hasNext()) {
@@ -90,9 +105,10 @@ public class ExcelHeadProperty {
         }
     }
 
-    private void initOneColumnPropertyWithType(Field f, Integer indexSelf) {
+    private void initOneColumnPropertyWithType(Field f, Integer indexSelf, Map<String, Integer> orderMap) {
         ExcelProperty p = f.getAnnotation(ExcelProperty.class);
         ExcelColumnProperty excelHeadProperty;
+        indexSelf = orderMap.isEmpty() ? indexSelf : orderMap.get(f.getName());
         if (p != null) {
             if (p.ignore()) return;
             excelHeadProperty = new ExcelColumnProperty();

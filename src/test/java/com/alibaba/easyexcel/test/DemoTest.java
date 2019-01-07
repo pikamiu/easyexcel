@@ -124,7 +124,7 @@ public class DemoTest {
         return BeanConvertUtil.listBean2Map(createJavaMode());
     }
 
-    @ExcelProperty
+    @ExcelProperty(orders = {"wh", "plat", "account", "site", "spu", "sku", "onlineSku", "reason", "status"})
     private static class SkuStatusTO extends BaseRowModel {
         @ExcelProperty(value = "平台")
         private String plat;

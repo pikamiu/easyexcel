@@ -30,7 +30,6 @@ public @interface ExcelProperty {
     int index() default 99999;
 
     /**
-     * default @see com.alibaba.excel.util.TypeUtil
      * if default is not  meet you can set format
      */
     String format() default "";
@@ -39,4 +38,9 @@ public @interface ExcelProperty {
      * Whether to ignore
      */
     boolean ignore() default false;
+
+    /**
+     * order filed
+     */
+    String[] orders() default {};
 }
