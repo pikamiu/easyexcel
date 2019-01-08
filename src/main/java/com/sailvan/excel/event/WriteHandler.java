@@ -31,5 +31,5 @@ public interface WriteHandler {
      * @param cellNum
      * @param cell
      */
-    void cell(int cellNum, Cell cell);
+    void cell(int cellNum, Cell cell, Object cellValue);
 }

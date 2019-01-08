@@ -9,15 +9,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sailvan.excel.EasyExcelUtil;
 import com.sailvan.excel.annotation.ExcelProperty;
 import com.sailvan.excel.context.AnalysisContext;
 import com.sailvan.excel.event.AnalysisEventListener;
+import com.sailvan.excel.event.WriteHandler;
 import com.sailvan.excel.metadata.BaseRowModel;
 import com.sailvan.excel.metadata.WriteInfo;
-import com.alibaba.fastjson.JSONObject;
 
 /**
  * <p>简要说明...</p>
@@ -68,13 +78,13 @@ public class DemoTest {
         List<List<Object>> list = new ArrayList<List<Object>>();
         for (int i = 0; i < 1000; i++) {
             List<Object> da = new ArrayList<Object>();
-            da.add("字符串" + i);
+            da.add("字符串222222222222222222222222" + i);
             da.add(187837834L + i);
             da.add(2233 + i);
             da.add(2233.01 + i);
             da.add(2233.2f + i);
             da.add(new Date());
-            da.add(new BigDecimal("3434343433554545" + i));
+            da.add(new BigDecimal("3434343433554545555555" + i));
             da.add((short) i);
             list.add(da);
         }
@@ -98,19 +108,54 @@ public class DemoTest {
                 .build(), "C:\\Users\\Draher\\Desktop\\writeInfo.xlsx");
     }
 
+    @Test
+    public void writeWithHandle() throws IllegalAccessException {
+        WriteInfo writeInfo = new WriteInfo.Builder()
+                .title(new String[]{"平台", "仓库", "账号", "站点", "spu", "sku", "在线sku", "在线状态", "原因"})
+                .sheetName("hello")
+                .contentTitle(new String[]{"plat", "wh", "account", "site", "spu", "sku", "onlineSku", "status", "reason"})
+                .contentList(createDbMapData())
+                .build();
+        EasyExcelUtil.write(writeInfo, "C:\\Users\\Draher\\Desktop\\writeInfo.xlsx", new WriteHandler() {
+            @Override
+            public void sheet(int sheetNo, Sheet sheet) {
+
+            }
+
+            @Override
+            public void row(int rowNum, Row row) {
+
+            }
+
+            @Override
+            public void cell(int cellNum, Cell cell, Object cellValue) {
+                Workbook workbook = cell.getSheet().getWorkbook();
+                if (cellNum == 8 && cell.getRowIndex() > 0 && cellValue.equals("success1")) {
+                    CellStyle  newCellStyle = workbook.createCellStyle();
+                    newCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+                    newCellStyle.setAlignment(HorizontalAlignment.CENTER);
+                    newCellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+                    newCellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                    cell.setCellStyle(newCellStyle);
+                }
+            }
+        });
+    }
+
+
     private List<SkuStatusTO> createJavaMode() {
         List<SkuStatusTO> list = new ArrayList<SkuStatusTO>();
         for (int i = 0; i < 10; i++) {
             SkuStatusTO skuStatusTO = new SkuStatusTO();
             skuStatusTO.setPlat("amazon" + i);
             skuStatusTO.setWh("fba" + i);
-            skuStatusTO.setAccount("avidlove" + i);
+            skuStatusTO.setAccount("avidlove11111111111111111111111" + i);
             skuStatusTO.setSite("us" + i);
             skuStatusTO.setSpu("aaa" + i);
             skuStatusTO.setSku("bbb" + i);
             skuStatusTO.setOnlineSku("abab" + i);
             skuStatusTO.setStatus("ccc" + i);
-            skuStatusTO.setReason("test" + i);
+            skuStatusTO.setReason("success" + i);
             list.add(skuStatusTO);
         }
 
@@ -121,7 +166,7 @@ public class DemoTest {
         return BeanConvertUtil.listBean2Map(createJavaMode());
     }
 
-    @ExcelProperty(orders = {"wh", "plat", "account", "site", "spu", "sku", "onlineSku", "reason", "status"})
+    @ExcelProperty(orders = {"plat", "wh", "account", "site", "spu", "sku", "onlineSku", "status", "reason"})
     public static class SkuStatusTO extends BaseRowModel {
         @ExcelProperty(value = "平台")
         private String plat;

@@ -26,7 +26,7 @@ public class EasyExcelFactory {
      * @return analysis result.
      */
     public static List<List<String>> read2ListString(InputStream in, Sheet sheet) {
-        final List<List<String>>rows = new ArrayList<List<String>>();
+        final List<List<String>> rows = new ArrayList<List<String>>();
         new ExcelReader(in, null, new AnalysisEventListener() {
             @Override
             @SuppressWarnings("unchecked")
@@ -138,6 +138,18 @@ public class EasyExcelFactory {
                                                           boolean needHead,
                                                           WriteHandler handler) {
         return new ExcelWriter(temp, outputStream, typeEnum, needHead, handler);
+    }
+
+
+    /**
+     * Get ExcelWriter
+     *
+     * @param outputStream the java OutputStream you wish to write the data to
+     * @param handler      User-defined callback
+     * @return new  ExcelWriter
+     */
+    public static ExcelWriter getWriterWithHandler(OutputStream outputStream, WriteHandler handler) {
+        return new ExcelWriter(null, outputStream, ExcelTypeEnum.XLSX, true, handler);
     }
 
 }

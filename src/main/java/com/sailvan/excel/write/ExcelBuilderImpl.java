@@ -11,6 +11,7 @@ import com.sailvan.excel.util.CollectionUtils;
 import com.sailvan.excel.util.JSONUtil;
 import com.sailvan.excel.util.ListUtil;
 import com.sailvan.excel.util.POITempFile;
+import com.sailvan.excel.util.StyleUtil;
 import com.sailvan.excel.util.TypeUtil;
 import com.sailvan.excel.util.WorkBookUtil;
 import com.alibaba.fastjson.JSON;
@@ -146,8 +147,9 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             Object cellValue = oneRowData.get(i);
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
                 TypeUtil.isNum(cellValue));
+            StyleUtil.autoColumnSize(context.getCurrentSheet(), context.getCurrentSheetParam(), i);
             if (null != context.getAfterWriteHandler()) {
-                context.getAfterWriteHandler().cell(i, cell);
+                context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
         }
     }
@@ -171,8 +173,9 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             Object cellValue = json.get(heads.get(i));
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
                     TypeUtil.isNum(cellValue));
+            StyleUtil.autoColumnSize(context.getCurrentSheet(), context.getCurrentSheetParam(), i);
             if (null != context.getAfterWriteHandler()) {
-                context.getAfterWriteHandler().cell(i, cell);
+                context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
         }
     }
@@ -190,8 +193,9 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             Object cellValue = map.get(contentTitle.get(i));
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
                     TypeUtil.isNum(cellValue));
+            StyleUtil.autoColumnSize(context.getCurrentSheet(), context.getCurrentSheetParam(), i);
             if (null != context.getAfterWriteHandler()) {
-                context.getAfterWriteHandler().cell(i, cell);
+                context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
         }
     }
@@ -212,8 +216,12 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             CellStyle cellStyle = context.getCurrentContentStyle();
             Cell cell = WorkBookUtil.createCell(row, i, cellStyle, cellValue,
                 TypeUtil.isNum(excelHeadProperty.getField()));
+
+            // set auto size columns
+            StyleUtil.autoColumnSize(context.getCurrentSheet(), context.getCurrentSheetParam(), i);
+
             if (null != context.getAfterWriteHandler()) {
-                context.getAfterWriteHandler().cell(i, cell);
+                context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
             i++;
         }

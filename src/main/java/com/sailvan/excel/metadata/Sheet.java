@@ -11,6 +11,7 @@ import java.util.Map;
 public class Sheet {
 
     /**
+     * the head line number
      */
     private int headLineMun;
 
@@ -19,12 +20,8 @@ public class Sheet {
      */
     private int sheetNo;
 
-    /**
-     */
     private String sheetName;
 
-    /**
-     */
     private Class<? extends BaseRowModel> clazz;
 
     /**
@@ -42,9 +39,6 @@ public class Sheet {
      */
     private List<String> contentTitle;
 
-    /**
-     *
-     */
     private TableStyle tableStyle;
 
     /**
@@ -53,13 +47,10 @@ public class Sheet {
     private Map<Integer,Integer> columnWidthMap = new HashMap<Integer, Integer>();
 
     /**
-     *
+     * boolean autoWidth, it's notice that it will make program more slowly
      */
-    private Boolean autoWidth = Boolean.TRUE;
+    private Boolean autoWidth = Boolean.FALSE;
 
-    /**
-     *
-     */
     private int startRow = 0;
 
 
@@ -200,6 +191,8 @@ public class Sheet {
         this.startRow = startRow;
     }
 
+
+
     private Sheet(Builder builder) {
         this.headLineMun = builder.headLineMun;
         this.sheetNo = builder.sheetNo;
@@ -224,7 +217,7 @@ public class Sheet {
         private List<String> contentTitle;
         private TableStyle tableStyle;
         private Map<Integer,Integer> columnWidthMap = new HashMap<Integer, Integer>();
-        private Boolean autoWidth = Boolean.TRUE;
+        private Boolean autoWidth = Boolean.FALSE;
         private int startRow = 0;
 
         public Builder sheetNo(int val) {

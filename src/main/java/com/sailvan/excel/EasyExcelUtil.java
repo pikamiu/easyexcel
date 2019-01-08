@@ -8,14 +8,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import com.sailvan.excel.annotation.ExcelProperty;
 import com.sailvan.excel.event.AnalysisEventListener;
+import com.sailvan.excel.event.WriteHandler;
 import com.sailvan.excel.metadata.BaseRowModel;
 import com.sailvan.excel.metadata.Sheet;
-import com.sailvan.excel.metadata.Sheet.Builder;
 import com.sailvan.excel.metadata.WriteInfo;
-import com.sailvan.excel.annotation.ExcelProperty;
 
 /**
  * <p>easy excel util </p>
@@ -211,23 +212,8 @@ public class EasyExcelUtil {
      * @param path       file out path
      */
     public static void write(List<List<Object>> lists, List<String> singleHead, String sheetName, String path) {
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeObject(lists, new Builder().sheetNo(1).headLineMun(1).sheetName(sheetName).singleHead(singleHead).build());
-            writer.finish();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        Sheet sheet = new Sheet.Builder().sheetNo(1).headLineMun(1).sheetName(sheetName).singleHead(singleHead).build();
+        write(lists, sheet, path);
     }
 
     /**
@@ -238,23 +224,19 @@ public class EasyExcelUtil {
      * @param path      file path
      */
     public static void writeWithMultiHead(List<List<Object>> lists, List<List<String>> multiHead, String path) {
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeObject(lists, new Sheet(1, 1, multiHead));
-            writer.finish();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        Sheet sheet = new Sheet(1, 1, multiHead);
+        write(lists, sheet, path);
+    }
+
+    /**
+     * write excel
+     *
+     * @param lists data list
+     * @param sheet sheet
+     * @param path  file path
+     */
+    public static void write(List<List<Object>> lists, Sheet sheet, String path) {
+        write(lists, sheet, path, null);
     }
 
     /**
@@ -264,11 +246,11 @@ public class EasyExcelUtil {
      * @param sheet sheet
      * @param path  file path
      */
-    public static void write(List<List<Object>> lists, Sheet sheet, String path) {
+    public static void write(List<List<Object>> lists, Sheet sheet, String path, WriteHandler writeHandler) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
+            ExcelWriter writer = EasyExcelFactory.getWriterWithHandler(out, writeHandler);
             writer.writeObject(lists, sheet);
             writer.finish();
         } catch (Exception e) {
@@ -296,28 +278,30 @@ public class EasyExcelUtil {
      * @param path   file path
      */
     public static void writeByBean(List<? extends BaseRowModel> models, Class<? extends BaseRowModel> tClass, String sheetName, String path) {
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeBean(models, new Builder()
-                    .sheetNo(1)
-                    .headLineMun(1)
-                    .sheetName(sheetName)
-                    .clazz(tClass)
-                    .build());
-            writer.finish();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        writeByBean(models, tClass, sheetName, path, null);
+    }
+
+    /**
+     * write excel by java bean, design sheet yourself
+     *
+     * @param models       list bean
+     * @param tClass       the class what expends BaseRowModel
+     * @param sheetName    sheetName
+     * @param path         file path
+     * @param writeHandler User-defined callback
+     */
+    public static void writeByBean(List<? extends BaseRowModel> models,
+                                   Class<? extends BaseRowModel> tClass,
+                                   String sheetName,
+                                   String path,
+                                   WriteHandler writeHandler) {
+        Sheet sheet = new Sheet.Builder()
+                .sheetNo(1)
+                .headLineMun(1)
+                .sheetName(sheetName)
+                .clazz(tClass)
+                .build();
+        writeByBean(models, sheet, path, writeHandler);
     }
 
     /**
@@ -328,10 +312,21 @@ public class EasyExcelUtil {
      * @param path   file path
      */
     public static void writeByBean(List<? extends BaseRowModel> models, Sheet sheet, String path) {
+        writeByBean(models, sheet, path, null);
+    }
+
+    /**
+     * write excel by java bean, design sheet yourself
+     *
+     * @param models bean list
+     * @param sheet  sheet info
+     * @param path   file path
+     */
+    public static void writeByBean(List<? extends BaseRowModel> models, Sheet sheet, String path, WriteHandler writeHandler) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
+            ExcelWriter writer = EasyExcelFactory.getWriterWithHandler(out, writeHandler);
             writer.writeBean(models, sheet);
             writer.finish();
         } catch (Exception e) {
@@ -409,41 +404,24 @@ public class EasyExcelUtil {
     /**
      * write excel with writeInfo, the class writeInfo Adopt builders
      * eg :
-     *  WriteInfo writeInfo = new WriteInfo.Builder()
-     *                 .sheetName("sheet1")
-     *                 .title(new String[]{"账号", "站点"})
-     *                 .contentTitle(new String[]{"account", "site"})
-     *                 .contentList(data)
-     *                 .build()
+     * <code>
+     * WriteInfo writeInfo = new WriteInfo.Builder()
+     *             .sheetName("sheet1")
+     *             .title(new String[]{"账号", "站点"})
+     *             .contentTitle(new String[]{"account", "site"})
+     *             .contentList(data)
+     *             .build()
+     * </code>
      *
      * @param writeInfo Stores the information that needs to be written
      * @param path      file path
      */
     public static void write(WriteInfo writeInfo, String path) {
-        OutputStream out = null;
-        try {
-            out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
-            writer.writeMap(writeInfo.getContentList(),
-                    new Sheet.Builder()
-                            .sheetNo(1)
-                            .headLineMun(1)
-                            .sheetName(writeInfo.getSheetName())
-                            .singleHead(Arrays.asList(writeInfo.getTitle()))
-                            .contentTitle(Arrays.asList(writeInfo.getContentTitle()))
-                            .build());
-            writer.finish();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        write(writeInfo, path, null);
+    }
+
+    public static void write(WriteInfo writeInfo, String path, WriteHandler writeHandler) {
+        write(Collections.singletonList(writeInfo), path, writeHandler);
     }
 
     /**
@@ -453,10 +431,21 @@ public class EasyExcelUtil {
      * @param path path
      */
     public static void write(List<WriteInfo> list, String path) {
+        write(list, path, null);
+    }
+
+    /**
+     * write excel with list writeInfo
+     *
+     * @param list         writeInfo list
+     * @param path         path
+     * @param writeHandler User-defined callback
+     */
+    public static void write(List<WriteInfo> list, String path, WriteHandler writeHandler) {
         OutputStream out = null;
         try {
             out = new FileOutputStream(path);
-            ExcelWriter writer = EasyExcelFactory.getWriter(out);
+            ExcelWriter writer = EasyExcelFactory.getWriterWithHandler(out, writeHandler);
             for (int i = 0; i < list.size(); i++) {
                 WriteInfo writeInfo = list.get(i);
                 writer.writeMap(writeInfo.getContentList(),

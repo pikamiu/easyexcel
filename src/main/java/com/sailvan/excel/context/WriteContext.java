@@ -11,6 +11,7 @@ import com.sailvan.excel.util.WorkBookUtil;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.sailvan.excel.util.StyleUtil.buildSheetStyle;
+import static com.sailvan.excel.util.StyleUtil.buildSXSSFSheetStyle;
 
 /**
  * A context is the main anchorage point of a excel writer.
@@ -129,7 +130,7 @@ public class WriteContext {
                     this.afterWriteHandler.sheet(sheet.getSheetNo(), currentSheet);
                 }
             }
-            buildSheetStyle(currentSheet, sheet.getColumnWidthMap());
+            buildSXSSFSheetStyle((SXSSFSheet) currentSheet, sheet.getColumnWidthMap());
             /** **/
             this.initCurrentSheet(sheet);
         }
@@ -209,7 +210,7 @@ public class WriteContext {
             for (int i = 0; i < headByRowNum.size(); i++) {
                 Cell cell = WorkBookUtil.createCell(row, i, getCurrentHeadCellStyle(), headByRowNum.get(i));
                 if (null != afterWriteHandler) {
-                    this.afterWriteHandler.cell(i, cell);
+                    this.afterWriteHandler.cell(i, cell, null);
                 }
             }
         }

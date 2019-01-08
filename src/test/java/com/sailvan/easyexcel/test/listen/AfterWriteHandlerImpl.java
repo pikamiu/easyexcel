@@ -31,7 +31,7 @@ public class AfterWriteHandlerImpl implements WriteHandler {
     }
 
     @Override
-    public void cell(int cellNum, Cell cell) {
+    public void cell(int cellNum, Cell cell, Object cellValue) {
         Workbook workbook = cell.getSheet().getWorkbook();
         Sheet currentSheet = cell.getSheet();
         if (cellNum == 4 && cell.getRowIndex() == 30) {

@@ -1,6 +1,7 @@
 package com.sailvan.excel.util;
 
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 
@@ -85,6 +86,20 @@ public class StyleUtil {
             currentSheet.setColumnWidth(entry.getKey(), entry.getValue());
         }
         return currentSheet;
+    }
+
+    public static Sheet buildSXSSFSheetStyle(SXSSFSheet currentSheet, Map<Integer, Integer> sheetWidthMap){
+        currentSheet.trackAllColumnsForAutoSizing();
+        for (Map.Entry<Integer, Integer> entry : sheetWidthMap.entrySet()) {
+            currentSheet.setColumnWidth(entry.getKey(), entry.getValue());
+        }
+        return currentSheet;
+    }
+
+    public static void autoColumnSize(Sheet currentSheet, com.sailvan.excel.metadata.Sheet sheetParam, int i) {
+        if (sheetParam.getAutoWidth()) {
+            currentSheet.autoSizeColumn(i);
+        }
     }
 
 
