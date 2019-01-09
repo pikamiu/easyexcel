@@ -28,6 +28,7 @@ import com.sailvan.excel.event.AnalysisEventListener;
 import com.sailvan.excel.event.WriteHandler;
 import com.sailvan.excel.metadata.BaseRowModel;
 import com.sailvan.excel.metadata.WriteInfo;
+import com.sailvan.excel.metadata.typeconvertor.AccountTypeConvertor;
 import com.sailvan.excel.metadata.typeconvertor.JsonTypeConvertor;
 
 /**
@@ -158,6 +159,7 @@ public class DemoTest {
             skuStatusTO.setPlat("amazon" + i);
             skuStatusTO.setWh("fba" + i);
             skuStatusTO.setAccount("avidlove11111111111111111111111" + i);
+            skuStatusTO.setAccountId(1);
             skuStatusTO.setSite("us" + i);
             skuStatusTO.setSpu("aaa" + i);
             skuStatusTO.setSku("bbb" + i);
@@ -175,7 +177,7 @@ public class DemoTest {
         return BeanConvertUtil.listBean2Map(createJavaMode());
     }
 
-    @ExcelProperty(orders = {"plat", "wh", "account", "site", "spu", "sku", "onlineSku", "status", "reason", "object"})
+    @ExcelProperty(orders = {"plat", "wh", "account", "accountId", "site", "spu", "sku", "onlineSku", "status", "reason", "object"})
     public static class SkuStatusTO extends BaseRowModel {
         @ExcelProperty(value = "平台")
         private String plat;
@@ -183,6 +185,8 @@ public class DemoTest {
         private String wh;
         @ExcelProperty(value = "账号")
         private String account;
+        @ExcelProperty(value = "账号Id", convertor = AccountTypeConvertor.class)
+        private Integer accountId;
         @ExcelProperty(value = "站点")
         private String site;
         private String spu;
@@ -218,6 +222,14 @@ public class DemoTest {
 
         public void setAccount(String account) {
             this.account = account;
+        }
+
+        public Integer getAccountId() {
+            return accountId;
+        }
+
+        public void setAccountId(Integer accountId) {
+            this.accountId = accountId;
         }
 
         public String getSite() {

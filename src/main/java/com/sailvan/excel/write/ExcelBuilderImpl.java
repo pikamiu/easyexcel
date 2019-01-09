@@ -146,10 +146,15 @@ public class ExcelBuilderImpl implements ExcelBuilder {
     @Override
     public void finish() {
         try {
+            context.getExcelHeadProperty().clearConvert();
             context.getWorkbook().write(context.getOutputStream());
             context.getWorkbook().close();
         } catch (IOException e) {
             throw new ExcelGenerateException("IO error", e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("InstantiationException is happen : {}" , e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("IllegalAccessException is happen : {}" , e);
         }
     }
 
@@ -160,7 +165,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
         for (int i = 0; i < oneRowData.size(); i++) {
             Object cellValue = oneRowData.get(i);
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
-                TypeUtil.isNum(cellValue));
+                TypeUtil.isNum(cellValue), false);
             if (null != context.getAfterWriteHandler()) {
                 context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
@@ -185,7 +190,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             JSONObject json = JSON.parseObject(String.valueOf(oneRowData));
             Object cellValue = json.get(heads.get(i));
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
-                    TypeUtil.isNum(cellValue));
+                    TypeUtil.isNum(cellValue), false);
             if (null != context.getAfterWriteHandler()) {
                 context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
@@ -204,7 +209,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
             Map<String, Object> map = (Map<String, Object>) oneRowData;
             Object cellValue = map.get(contentTitle.get(i));
             Cell cell = WorkBookUtil.createCell(row, i, context.getCurrentContentStyle(), cellValue,
-                    TypeUtil.isNum(cellValue));
+                    TypeUtil.isNum(cellValue), false);
             if (null != context.getAfterWriteHandler()) {
                 context.getAfterWriteHandler().cell(i, cell, cellValue);
             }
@@ -226,7 +231,7 @@ public class ExcelBuilderImpl implements ExcelBuilder {
 
             CellStyle cellStyle = context.getCurrentContentStyle();
             Cell cell = WorkBookUtil.createCell(row, i, cellStyle, cellValue,
-                TypeUtil.isNum(excelHeadProperty.getField()));
+                TypeUtil.isNum(excelHeadProperty.getField()), TypeUtil.hasTypeConvert(excelHeadProperty.getConverter()));
 
             if (null != context.getAfterWriteHandler()) {
                 context.getAfterWriteHandler().cell(i, cell, cellValue);

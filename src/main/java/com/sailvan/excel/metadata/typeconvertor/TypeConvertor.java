@@ -9,7 +9,19 @@ package com.sailvan.excel.metadata.typeconvertor;
  * @author wujiaming
  */
 public interface TypeConvertor<T> {
-    T serialize(String s);
 
-    String deserialize(T s);
+    /**
+     * Custom convert data to String
+     */
+    String convert(T s);
+
+    /**
+     * reversal data from the excel
+     */
+    T reversal(String s);
+
+    /**
+     * it's main use to clear data
+     */
+    void doAfter();
 }

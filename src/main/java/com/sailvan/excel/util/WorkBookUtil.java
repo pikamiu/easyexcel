@@ -57,14 +57,14 @@ public class WorkBookUtil {
     }
 
     public static Cell createCell(Row row, int colNum, CellStyle cellStyle, String cellValue) {
-        return createCell(row, colNum, cellStyle, cellValue, false);
+        return createCell(row, colNum, cellStyle, cellValue, false, false);
     }
 
-    public static Cell createCell(Row row, int colNum, CellStyle cellStyle, Object cellValue, Boolean isNum) {
+    public static Cell createCell(Row row, int colNum, CellStyle cellStyle, Object cellValue, Boolean isNum, Boolean isConvert) {
         Cell cell = row.createCell(colNum);
         cell.setCellStyle(cellStyle);
         if (null != cellValue) {
-            if (isNum) {
+            if (isNum && isConvert) {
                 cell.setCellValue(Double.parseDouble(cellValue.toString()));
             } else {
                 cell.setCellValue(cellValue.toString());

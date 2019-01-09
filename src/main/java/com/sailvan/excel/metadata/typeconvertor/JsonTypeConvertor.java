@@ -12,12 +12,17 @@ import com.alibaba.fastjson.JSONObject;
  */
 public class JsonTypeConvertor implements TypeConvertor<JSONObject> {
     @Override
-    public JSONObject serialize(String s) {
+    public JSONObject reversal(String s) {
         return JSON.parseObject(s);
     }
 
     @Override
-    public String deserialize(JSONObject s) {
+    public String convert(JSONObject s) {
         return s.toJSONString();
+    }
+
+    @Override
+    public void doAfter() {
+
     }
 }

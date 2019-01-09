@@ -49,5 +49,5 @@ public @interface ExcelProperty {
     /**
      * you can define yours TypeConvertor
      */
-    Class convertor() default TypeConvertor.class;
+    Class<? extends TypeConvertor> convertor() default TypeConvertor.class;
 }

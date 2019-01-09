@@ -35,6 +35,12 @@ public class ExcelHeadProperty {
      */
     private Map<Integer, ExcelColumnProperty> excelColumnPropertyMap1 = new HashMap<Integer, ExcelColumnProperty>();
 
+    /**
+     * the convert set
+     */
+    private Set<Class<? extends TypeConvertor>> convertSet = new HashSet<Class<? extends TypeConvertor>>();
+
+
     public ExcelHeadProperty(Class<? extends BaseRowModel> headClazz, List<List<String>> head) {
         this.headClazz = headClazz;
         this.head = head;
@@ -168,12 +174,20 @@ public class ExcelHeadProperty {
         try {
             if (!p.convertor().equals(TypeConvertor.class) && (p.convertor().isInterface() || Modifier.isAbstract(p.convertor().getModifiers())))
                 throw new RuntimeException("convertor type is wrong");
-            else if (!p.convertor().equals(TypeConvertor.class))
-                excelHeadProperty.setConverter((TypeConvertor) p.convertor().newInstance());
+            else if (!p.convertor().equals(TypeConvertor.class)) {
+                excelHeadProperty.setConverter(p.convertor().newInstance());
+                convertSet.add(p.convertor());
+            }
         } catch (InstantiationException e) {
             throw new RuntimeException("InstantiationException is happen : {}" , e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException("IllegalAccessException is happen : {}" , e);
+        }
+    }
+
+    public void clearConvert() throws IllegalAccessException, InstantiationException {
+        for (Class<? extends TypeConvertor> clazz : convertSet) {
+            clazz.newInstance().doAfter();
         }
     }
 
