@@ -6,6 +6,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.sailvan.excel.metadata.typeconvertor.TypeConvertor;
+
 /**
  * ExcelProperty
  * the annotation can use in class or field, when use in class ,
@@ -43,4 +45,9 @@ public @interface ExcelProperty {
      * order filed
      */
     String[] orders() default {};
+
+    /**
+     * you can define yours TypeConvertor
+     */
+    Class convertor() default TypeConvertor.class;
 }

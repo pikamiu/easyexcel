@@ -2,8 +2,10 @@ package com.sailvan.excel.metadata;
 
 import com.sailvan.excel.annotation.ExcelColumnNum;
 import com.sailvan.excel.annotation.ExcelProperty;
+import com.sailvan.excel.metadata.typeconvertor.TypeConvertor;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
@@ -108,6 +110,9 @@ public class ExcelHeadProperty {
         ExcelProperty p = f.getAnnotation(ExcelProperty.class);
         ExcelColumnProperty excelHeadProperty;
         indexSelf = orderMap.isEmpty() ? indexSelf : orderMap.get(f.getName());
+        if (indexSelf == null) {
+            throw new RuntimeException("The sequence of order Annotation incomplete");
+        }
         if (p != null) {
             if (p.ignore()) return;
             excelHeadProperty = new ExcelColumnProperty();
@@ -116,6 +121,7 @@ public class ExcelHeadProperty {
             excelHeadProperty.setHead(head);
             excelHeadProperty.setIndex(indexSelf);
             excelHeadProperty.setFormat(p.format());
+            addConvertor(p, excelHeadProperty);
             excelColumnPropertyMap1.put(indexSelf, excelHeadProperty);
         } else {
             excelHeadProperty = new ExcelColumnProperty();
@@ -140,6 +146,7 @@ public class ExcelHeadProperty {
             excelHeadProperty.setHead(Arrays.asList(p.value()));
             excelHeadProperty.setIndex(p.index());
             excelHeadProperty.setFormat(p.format());
+            addConvertor(p, excelHeadProperty);
             excelColumnPropertyMap1.put(p.index(), excelHeadProperty);
         } else {
             ExcelColumnNum columnNum = f.getAnnotation(ExcelColumnNum.class);
@@ -155,6 +162,19 @@ public class ExcelHeadProperty {
             this.columnPropertyList.add(excelHeadProperty);
         }
 
+    }
+
+    private void addConvertor(ExcelProperty p, ExcelColumnProperty excelHeadProperty){
+        try {
+            if (!p.convertor().equals(TypeConvertor.class) && (p.convertor().isInterface() || Modifier.isAbstract(p.convertor().getModifiers())))
+                throw new RuntimeException("convertor type is wrong");
+            else if (!p.convertor().equals(TypeConvertor.class))
+                excelHeadProperty.setConverter((TypeConvertor) p.convertor().newInstance());
+        } catch (InstantiationException e) {
+            throw new RuntimeException("InstantiationException is happen : {}" , e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("IllegalAccessException is happen : {}" , e);
+        }
     }
 
     /**

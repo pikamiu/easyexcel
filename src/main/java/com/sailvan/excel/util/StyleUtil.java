@@ -17,7 +17,6 @@ public class StyleUtil {
     }
 
     /**
-     *
      * @param workbook
      * @return
      */
@@ -47,7 +46,7 @@ public class StyleUtil {
         CellStyle newCellStyle = workbook.createCellStyle();
         Font font = workbook.createFont();
         font.setFontName("宋体");
-        font.setFontHeightInPoints((short)11);
+        font.setFontHeightInPoints((short) 11);
         font.setBold(false);
         newCellStyle.setFont(font);
 
@@ -58,7 +57,6 @@ public class StyleUtil {
     }
 
     /**
-     *
      * @param workbook
      * @param f
      * @param indexedColors
@@ -80,7 +78,7 @@ public class StyleUtil {
         return cellStyle;
     }
 
-    public static Sheet buildSheetStyle(Sheet currentSheet, Map<Integer, Integer> sheetWidthMap){
+    public static Sheet buildSheetStyle(Sheet currentSheet, Map<Integer, Integer> sheetWidthMap) {
         currentSheet.setDefaultColumnWidth(20);
         for (Map.Entry<Integer, Integer> entry : sheetWidthMap.entrySet()) {
             currentSheet.setColumnWidth(entry.getKey(), entry.getValue());
@@ -88,7 +86,7 @@ public class StyleUtil {
         return currentSheet;
     }
 
-    public static Sheet buildSXSSFSheetStyle(SXSSFSheet currentSheet, Map<Integer, Integer> sheetWidthMap){
+    public static Sheet buildSXSSFSheetStyle(SXSSFSheet currentSheet, Map<Integer, Integer> sheetWidthMap) {
         currentSheet.trackAllColumnsForAutoSizing();
         for (Map.Entry<Integer, Integer> entry : sheetWidthMap.entrySet()) {
             currentSheet.setColumnWidth(entry.getKey(), entry.getValue());
@@ -100,6 +98,10 @@ public class StyleUtil {
         if (sheetParam.getAutoWidth()) {
             currentSheet.autoSizeColumn(i);
         }
+    }
+
+    public static void autoColumnSize(Sheet currentSheet, int i) {
+        currentSheet.autoSizeColumn(i);
     }
 
 

@@ -20,8 +20,14 @@ public class Sheet {
      */
     private int sheetNo;
 
+    /**
+     * sheet name
+     */
     private String sheetName;
 
+    /**
+     * the model class
+     */
     private Class<? extends BaseRowModel> clazz;
 
     /**
@@ -39,6 +45,9 @@ public class Sheet {
      */
     private List<String> contentTitle;
 
+    /**
+     * table stayle
+     */
     private TableStyle tableStyle;
 
     /**
@@ -49,7 +58,7 @@ public class Sheet {
     /**
      * boolean autoWidth, it's notice that it will make program more slowly
      */
-    private Boolean autoWidth = Boolean.FALSE;
+    private Boolean autoWidth = Boolean.TRUE;
 
     private int startRow = 0;
 
@@ -217,7 +226,7 @@ public class Sheet {
         private List<String> contentTitle;
         private TableStyle tableStyle;
         private Map<Integer,Integer> columnWidthMap = new HashMap<Integer, Integer>();
-        private Boolean autoWidth = Boolean.FALSE;
+        private Boolean autoWidth = Boolean.TRUE;
         private int startRow = 0;
 
         public Builder sheetNo(int val) {

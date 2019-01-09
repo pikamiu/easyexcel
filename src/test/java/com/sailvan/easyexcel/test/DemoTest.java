@@ -28,6 +28,7 @@ import com.sailvan.excel.event.AnalysisEventListener;
 import com.sailvan.excel.event.WriteHandler;
 import com.sailvan.excel.metadata.BaseRowModel;
 import com.sailvan.excel.metadata.WriteInfo;
+import com.sailvan.excel.metadata.typeconvertor.JsonTypeConvertor;
 
 /**
  * <p>简要说明...</p>
@@ -46,7 +47,7 @@ public class DemoTest {
 
     @Test
     public void readByModel() {
-        List<SkuStatusTO> list = EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\sku_status_import_template.xlsx", SkuStatusTO.class);
+        List<SkuStatusTO> list = EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\writeModel.xlsx", SkuStatusTO.class);
         System.out.println(list.size());
     }
 
@@ -89,13 +90,19 @@ public class DemoTest {
             list.add(da);
         }
 
+        long start = System.currentTimeMillis();
         EasyExcelUtil.write(list, Arrays.asList("第一列", "第二列", "第三列"), "hello world", "C:\\Users\\Draher\\Desktop\\string.xlsx");
+        long end = System.currentTimeMillis();
+        System.out.println("run times：" + (end - start));
     }
 
     @Test
     public void writeByBean() {
+        long start = System.currentTimeMillis();
         List<SkuStatusTO> list = createJavaMode();
         EasyExcelUtil.writeByBean(list, SkuStatusTO.class, "hello world", "C:\\Users\\Draher\\Desktop\\writeModel.xlsx");
+        long end = System.currentTimeMillis();
+        System.out.println("总运行时间:" + ( end - start));
     }
 
     @Test
@@ -116,6 +123,7 @@ public class DemoTest {
                 .contentTitle(new String[]{"plat", "wh", "account", "site", "spu", "sku", "onlineSku", "status", "reason"})
                 .contentList(createDbMapData())
                 .build();
+
         EasyExcelUtil.write(writeInfo, "C:\\Users\\Draher\\Desktop\\writeInfo.xlsx", new WriteHandler() {
             @Override
             public void sheet(int sheetNo, Sheet sheet) {
@@ -145,7 +153,7 @@ public class DemoTest {
 
     private List<SkuStatusTO> createJavaMode() {
         List<SkuStatusTO> list = new ArrayList<SkuStatusTO>();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100000; i++) {
             SkuStatusTO skuStatusTO = new SkuStatusTO();
             skuStatusTO.setPlat("amazon" + i);
             skuStatusTO.setWh("fba" + i);
@@ -156,6 +164,7 @@ public class DemoTest {
             skuStatusTO.setOnlineSku("abab" + i);
             skuStatusTO.setStatus("ccc" + i);
             skuStatusTO.setReason("success" + i);
+            skuStatusTO.setObject(new JSONObject(){{put("name", "测试");}});
             list.add(skuStatusTO);
         }
 
@@ -166,7 +175,7 @@ public class DemoTest {
         return BeanConvertUtil.listBean2Map(createJavaMode());
     }
 
-    @ExcelProperty(orders = {"plat", "wh", "account", "site", "spu", "sku", "onlineSku", "status", "reason"})
+    @ExcelProperty(orders = {"plat", "wh", "account", "site", "spu", "sku", "onlineSku", "status", "reason", "object"})
     public static class SkuStatusTO extends BaseRowModel {
         @ExcelProperty(value = "平台")
         private String plat;
@@ -184,6 +193,8 @@ public class DemoTest {
         private String status;
         @ExcelProperty(value = "原因")
         private String reason;
+        @ExcelProperty(value = "序列号", convertor = JsonTypeConvertor.class)
+        private JSONObject object;
 
         public String getPlat() {
             return plat;
@@ -255,6 +266,14 @@ public class DemoTest {
 
         public void setReason(String reason) {
             this.reason = reason;
+        }
+
+        public JSONObject getObject() {
+            return object;
+        }
+
+        public void setObject(JSONObject object) {
+            this.object = object;
         }
     }
 

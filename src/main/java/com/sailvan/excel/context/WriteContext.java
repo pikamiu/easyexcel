@@ -167,7 +167,10 @@ public class WriteContext {
      * @param clazz
      */
     private void initExcelHeadProperty(List<List<String>> head, Class<? extends BaseRowModel> clazz) {
-        if (head != null || clazz != null) { this.excelHeadProperty = new ExcelHeadProperty(clazz, head); }
+        if (head != null || clazz != null) {
+            this.excelHeadProperty = new ExcelHeadProperty(clazz, head);
+            this.currentSheetParam.setHead(excelHeadProperty.getHead());
+        }
     }
 
     private void initContentTitle(List<String> contentTitle) {
@@ -244,7 +247,7 @@ public class WriteContext {
 
     }
 
-    private List<List<String>> getHead(com.sailvan.excel.metadata.Sheet sheet) {
+    public List<List<String>> getHead(com.sailvan.excel.metadata.Sheet sheet) {
         return sheet.getHead() != null ? sheet.getHead() : ListUtil.listWarp(sheet.getSingleHead());
     }
 
