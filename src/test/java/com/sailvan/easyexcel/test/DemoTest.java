@@ -32,7 +32,22 @@ import com.sailvan.excel.metadata.typeconvertor.AccountTypeConvertor;
 import com.sailvan.excel.metadata.typeconvertor.JsonTypeConvertor;
 
 /**
- * <p>简要说明...</p>
+ * <p>easy excel demo</p>
+ *
+ * easyExcel 核心功能
+ *
+ * 读任意大小的03、07版Excel不会OOM
+ * 读Excel自动通过注解，把结果映射为java模型
+ * 读Excel时候是否对Excel内容做trim()增加容错
+ * 读Excel支持自定义行级回调，每读一行数据后进行自定义数据操作
+ *
+ * 写任意大07版Excel不会OOM
+ * 写Excel通过注解将JavaBean自动写入Excel
+ * 写Excel可以自定义Excel样式 如：字体，加粗，表头颜色，数据内容颜色
+ * 写Excel支持sheet，row，cell级别的写入回调，可高度自定义写入样式
+ * Sheet提供多个自定义接口
+ *
+ * 写入效率较之前提升30%左右
  *
  * @author wujiaming
  * @version 1.0
@@ -40,18 +55,27 @@ import com.sailvan.excel.metadata.typeconvertor.JsonTypeConvertor;
  */
 public class DemoTest {
 
+    /**
+     * 常用读取excel方式
+     */
     @Test
     public void read() {
         List<List<String>> list = EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\sku_status_import_template.xlsx");
         System.out.println(list.size());
     }
 
+    /**
+     * 通过model读取excel
+     */
     @Test
     public void readByModel() {
         List<SkuStatusTO> list = EasyExcelUtil.read("C:\\Users\\Draher\\Desktop\\writeModel.xlsx", SkuStatusTO.class);
         System.out.println(list.size());
     }
 
+    /**
+     * 自定义回调样式，实现AnalysisEventListener即可
+     */
     @Test
     public void readByListen() {
         final List<String> lists = new ArrayList<String>();
@@ -97,6 +121,9 @@ public class DemoTest {
         System.out.println("run times：" + (end - start));
     }
 
+    /**
+     * 通过javaBean写入数据
+     */
     @Test
     public void writeByBean() {
         long start = System.currentTimeMillis();
@@ -106,6 +133,11 @@ public class DemoTest {
         System.out.println("总运行时间:" + ( end - start));
     }
 
+    /**
+     * 通过pi原先类似的方式写excel
+     * 通过封装WriteInfo对象， WriteInfo只能通过构建器Build创建
+     * @throws IllegalAccessException
+     */
     @Test
     public void write() throws IllegalAccessException {
         EasyExcelUtil.write(new WriteInfo.Builder()
@@ -116,6 +148,10 @@ public class DemoTest {
                 .build(), "C:\\Users\\Draher\\Desktop\\writeInfo.xlsx");
     }
 
+    /**
+     * 写入添加回调，如可将cell值为fail的单元格置为红色等
+     * @throws IllegalAccessException
+     */
     @Test
     public void writeWithHandle() throws IllegalAccessException {
         WriteInfo writeInfo = new WriteInfo.Builder()
@@ -154,7 +190,7 @@ public class DemoTest {
 
     private List<SkuStatusTO> createJavaMode() {
         List<SkuStatusTO> list = new ArrayList<SkuStatusTO>();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 1000; i++) {
             SkuStatusTO skuStatusTO = new SkuStatusTO();
             skuStatusTO.setPlat("amazon" + i);
             skuStatusTO.setWh("fba" + i);
@@ -167,6 +203,7 @@ public class DemoTest {
             skuStatusTO.setStatus("ccc" + i);
             skuStatusTO.setReason("success" + i);
             skuStatusTO.setObject(new JSONObject(){{put("name", "测试");}});
+            skuStatusTO.setDate(new Date());
             list.add(skuStatusTO);
         }
 
@@ -177,7 +214,27 @@ public class DemoTest {
         return BeanConvertUtil.listBean2Map(createJavaMode());
     }
 
-    @ExcelProperty(orders = {"plat", "wh", "account", "accountId", "site", "spu", "sku", "onlineSku", "status", "reason", "object"})
+    /**
+     * 用法类似fastJson的类注解
+     *
+     * @see com.sailvan.excel.annotation.ExcelProperty 注解
+     *
+     * index  数值对应列，默认值为9999
+     * value  对应表头,表头可设置为单行表头，或者多行的复合表头
+     * convertor 属性可实现类型转换，如accountId -> Account, 或 JSONObject -> jsonString提供自定义接口,实现TypeConvertor即可
+     *           底层使用反射实现，使用可能会稍微影响一点程序性能
+     *           因为MVC设计原则，Model层不依赖与任何业务逻辑，如果需要实现acccountId -> account的转换，这里涉及到DAO层操作（因为需要查询数据库当前的account），
+     *           则需要在service层创建一个专门处理excel的model类（推荐静态内部类），才可以添加转换的TypeConvertor
+     * format 对日期类型进行转换
+     * ignore 可忽略无需解析的字段，一般配合ExcelProperty注解使用在类名的情况
+     * order 字段排序，底层原理是重设index属性的变量，注意必须包含全部需要写入的字段，不然会抛出RunTimeException
+     *
+     * 如果未在类名上添加注解，则会按照有加注解的成员变量和index属性进行写入excel(仅处理有ExcelProperty注解的field)；
+     * 如果在类名添加注解，则默认所有属性都将进行写入excel，未指定表头名称的（即value属性），则按字段名设置表头，index值为字段的默认排序。
+     * orders属性会重排字段的index数值。
+     *
+     */
+    @ExcelProperty(orders = {"wh", "plat", "account", "accountId", "site", "spu", "sku", "onlineSku", "status", "reason", "object", "date"})
     public static class SkuStatusTO extends BaseRowModel {
         @ExcelProperty(value = "平台")
         private String plat;
@@ -199,6 +256,8 @@ public class DemoTest {
         private String reason;
         @ExcelProperty(value = "序列号", convertor = JsonTypeConvertor.class)
         private JSONObject object;
+        @ExcelProperty(value = "时间", format = "yyyy-MM-dd")
+        private Date date;
 
         public String getPlat() {
             return plat;
@@ -286,6 +345,14 @@ public class DemoTest {
 
         public void setObject(JSONObject object) {
             this.object = object;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public void setDate(Date date) {
+            this.date = date;
         }
     }
 
